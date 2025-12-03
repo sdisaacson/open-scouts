@@ -53,10 +53,13 @@ export async function POST(req: Request) {
     .single();
 
   if (scoutError || !scout || scout.user_id !== user.id) {
-    return new Response(JSON.stringify({ error: "Scout not found or unauthorized" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Scout not found or unauthorized" }),
+      {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   // Save user message to database

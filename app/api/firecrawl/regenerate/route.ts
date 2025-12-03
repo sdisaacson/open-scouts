@@ -17,16 +17,13 @@ export async function POST() {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!user.email) {
       return NextResponse.json(
         { error: "User email not found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -39,13 +36,16 @@ export async function POST() {
 
     if (preferences?.firecrawl_key_created_at) {
       const lastCreated = new Date(preferences.firecrawl_key_created_at);
-      const secondsSinceLastCreation = (Date.now() - lastCreated.getTime()) / 1000;
+      const secondsSinceLastCreation =
+        (Date.now() - lastCreated.getTime()) / 1000;
 
       if (secondsSinceLastCreation < RATE_LIMIT_SECONDS) {
-        const waitSeconds = Math.ceil(RATE_LIMIT_SECONDS - secondsSinceLastCreation);
+        const waitSeconds = Math.ceil(
+          RATE_LIMIT_SECONDS - secondsSinceLastCreation,
+        );
         return NextResponse.json(
           { error: `Please wait ${waitSeconds} seconds before trying again` },
-          { status: 429 }
+          { status: 429 },
         );
       }
     }
@@ -56,7 +56,7 @@ export async function POST() {
     if (!result.success) {
       return NextResponse.json(
         { error: result.error || "Failed to regenerate API key" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -68,7 +68,7 @@ export async function POST() {
     console.error("[API] Error regenerating Firecrawl key:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

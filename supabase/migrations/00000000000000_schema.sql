@@ -92,6 +92,8 @@ CREATE TABLE IF NOT EXISTS scout_execution_steps (
 CREATE TABLE IF NOT EXISTS user_preferences (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+  -- User location (for scouts)
+  location JSONB, -- {country, countryCode, state, stateCode, city, latitude, longitude}
   -- Firecrawl integration
   firecrawl_api_key TEXT,
   firecrawl_key_status TEXT DEFAULT 'pending'
@@ -102,6 +104,18 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+COMMENT ON COLUMN user_preferences.location IS
+'User''s default location for scouts. Structure:
+{
+  "country": "United States",
+  "countryCode": "US",
+  "state": "California",
+  "stateCode": "CA",
+  "city": "San Francisco",
+  "latitude": 37.7749,
+  "longitude": -122.4194
+}';
 
 COMMENT ON COLUMN user_preferences.firecrawl_key_status IS
 'Status of the Firecrawl API key:

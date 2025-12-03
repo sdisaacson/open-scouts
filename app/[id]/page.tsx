@@ -387,7 +387,11 @@ export default function ExecutionsPage() {
                   disabled={isButtonDisabled}
                   isLoading={triggering || hasRunningExecution}
                   loadingLabel={triggering ? "Starting..." : "Running..."}
-                  title={isOnCooldown ? `Available in ${formatCooldown(cooldownRemaining)}` : undefined}
+                  title={
+                    isOnCooldown
+                      ? `Available in ${formatCooldown(cooldownRemaining)}`
+                      : undefined
+                  }
                 >
                   <Play className="w-16 h-16" />
                   {isOnCooldown ? formatCooldown(cooldownRemaining) : "Run Now"}
@@ -486,7 +490,9 @@ export default function ExecutionsPage() {
               className="w-full"
             >
               <Play className="w-16 h-16" />
-              {isOnCooldown ? `Available in ${formatCooldown(cooldownRemaining)}` : "Run Now"}
+              {isOnCooldown
+                ? `Available in ${formatCooldown(cooldownRemaining)}`
+                : "Run Now"}
             </Button>
 
             {/* Clear Executions Button */}

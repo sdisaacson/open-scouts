@@ -16,10 +16,17 @@ import {
   Clock,
   XCircle,
   AlertTriangle,
+  MapPin,
 } from "lucide-react";
 import { Connector } from "@/components/shared/layout/curvy-rect";
+import LocationSelector, { UserLocation } from "@/components/location-selector";
 
-type FirecrawlKeyStatus = "pending" | "active" | "fallback" | "failed" | "invalid";
+type FirecrawlKeyStatus =
+  | "pending"
+  | "active"
+  | "fallback"
+  | "failed"
+  | "invalid";
 
 interface FirecrawlInfo {
   status: FirecrawlKeyStatus;
@@ -38,12 +45,19 @@ export default function SettingsPage() {
   const [testMessage, setTestMessage] = useState("");
 
   // Firecrawl state
-  const [firecrawlInfo, setFirecrawlInfo] = useState<FirecrawlInfo | null>(null);
+  const [firecrawlInfo, setFirecrawlInfo] = useState<FirecrawlInfo | null>(
+    null,
+  );
   const [regeneratingKey, setRegeneratingKey] = useState(false);
   const [regenerateMessage, setRegenerateMessage] = useState("");
   const [regenerateCooldown, setRegenerateCooldown] = useState(0); // seconds remaining
 
-  // Load Firecrawl info
+  // Location state
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [savingLocation, setSavingLocation] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
+
+  // Load preferences (Firecrawl + Location)
   useEffect(() => {
     const loadPreferences = async () => {
       if (!user?.id) {
@@ -55,7 +69,9 @@ export default function SettingsPage() {
       try {
         const { data } = await supabase
           .from("user_preferences")
-          .select("firecrawl_api_key, firecrawl_key_status, firecrawl_key_created_at, firecrawl_key_error")
+          .select(
+            "firecrawl_api_key, firecrawl_key_status, firecrawl_key_created_at, firecrawl_key_error, location",
+          )
           .eq("user_id", user.id)
           .maybeSingle();
 
@@ -66,6 +82,9 @@ export default function SettingsPage() {
             createdAt: data.firecrawl_key_created_at,
             error: data.firecrawl_key_error,
           });
+          if (data.location) {
+            setUserLocation(data.location as UserLocation);
+          }
         } else {
           // No preferences yet - set defaults
           setFirecrawlInfo({
@@ -108,7 +127,7 @@ export default function SettingsPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${session?.access_token}`,
+            Authorization: `Bearer ${session?.access_token}`,
           },
         },
       );
@@ -184,6 +203,49 @@ export default function SettingsPage() {
     }
 
     setRegeneratingKey(false);
+  };
+
+  const saveLocation = async (location: UserLocation | null) => {
+    if (!user?.id) return;
+
+    setSavingLocation(true);
+    setLocationMessage("");
+
+    try {
+      // Check if user_preferences row exists
+      const { data: existing } = await supabase
+        .from("user_preferences")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existing) {
+        // Update existing
+        const { error } = await supabase
+          .from("user_preferences")
+          .update({ location })
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new
+        const { error } = await supabase
+          .from("user_preferences")
+          .insert({ user_id: user.id, location });
+
+        if (error) throw error;
+      }
+
+      setUserLocation(location);
+      setLocationMessage("Location saved successfully!");
+      setTimeout(() => setLocationMessage(""), 3000);
+    } catch (error) {
+      setLocationMessage(
+        error instanceof Error ? error.message : "Failed to save location",
+      );
+    }
+
+    setSavingLocation(false);
   };
 
   const getStatusDisplay = (status: FirecrawlKeyStatus) => {
@@ -267,7 +329,9 @@ export default function SettingsPage() {
             <div className="w-2 h-16 bg-heat-100" />
             <div className="flex gap-12 items-center text-mono-x-small text-black-alpha-32 font-mono">
               <Flame className="w-14 h-14" />
-              <span className="uppercase tracking-wider">Firecrawl Integration</span>
+              <span className="uppercase tracking-wider">
+                Firecrawl Integration
+              </span>
             </div>
           </div>
         </div>
@@ -289,16 +353,22 @@ export default function SettingsPage() {
                     Web Scraping Connection
                   </h3>
                   <p className="text-body-small text-black-alpha-48 mb-16">
-                    Your scouts use Firecrawl to search and scrape web content. Each account has a dedicated API key for tracking and reliability.
+                    Your scouts use Firecrawl to search and scrape web content.
+                    Each account has a dedicated API key for tracking and
+                    reliability.
                   </p>
 
                   {/* Status Badge */}
                   {firecrawlInfo && (
                     <div className="space-y-12">
                       <div className="flex items-center gap-12">
-                        <span className="text-body-small text-black-alpha-56">Status:</span>
+                        <span className="text-body-small text-black-alpha-56">
+                          Status:
+                        </span>
                         {(() => {
-                          const display = getStatusDisplay(firecrawlInfo.status);
+                          const display = getStatusDisplay(
+                            firecrawlInfo.status,
+                          );
                           return (
                             <div
                               className={`inline-flex items-center gap-8 px-12 py-6 rounded-6 ${display.bgColor} ${display.color} border ${display.borderColor}`}
@@ -313,21 +383,27 @@ export default function SettingsPage() {
                       </div>
 
                       {/* Created At */}
-                      {firecrawlInfo.createdAt && firecrawlInfo.status === "active" && (
-                        <p className="text-body-small text-black-alpha-48">
-                          Connected since {new Date(firecrawlInfo.createdAt).toLocaleDateString()}
-                        </p>
-                      )}
+                      {firecrawlInfo.createdAt &&
+                        firecrawlInfo.status === "active" && (
+                          <p className="text-body-small text-black-alpha-48">
+                            Connected since{" "}
+                            {new Date(
+                              firecrawlInfo.createdAt,
+                            ).toLocaleDateString()}
+                          </p>
+                        )}
 
                       {/* Error Message */}
-                      {firecrawlInfo.error && (firecrawlInfo.status === "failed" || firecrawlInfo.status === "invalid") && (
-                        <div className="flex items-start gap-8 p-12 rounded-8 bg-accent-crimson/10 border border-accent-crimson/20">
-                          <AlertCircle className="w-16 h-16 text-accent-crimson mt-2 shrink-0" />
-                          <span className="text-body-small text-accent-crimson">
-                            {firecrawlInfo.error}
-                          </span>
-                        </div>
-                      )}
+                      {firecrawlInfo.error &&
+                        (firecrawlInfo.status === "failed" ||
+                          firecrawlInfo.status === "invalid") && (
+                          <div className="flex items-start gap-8 p-12 rounded-8 bg-accent-crimson/10 border border-accent-crimson/20">
+                            <AlertCircle className="w-16 h-16 text-accent-crimson mt-2 shrink-0" />
+                            <span className="text-body-small text-accent-crimson">
+                              {firecrawlInfo.error}
+                            </span>
+                          </div>
+                        )}
 
                       {/* Regenerate Button - show for failed, invalid, or pending states */}
                       {(firecrawlInfo.status === "failed" ||
@@ -353,7 +429,9 @@ export default function SettingsPage() {
                             ) : (
                               <>
                                 <RefreshCw className="w-16 h-16" />
-                                {firecrawlInfo.status === "pending" ? "Connect Now" : "Reconnect"}
+                                {firecrawlInfo.status === "pending"
+                                  ? "Connect Now"
+                                  : "Reconnect"}
                               </>
                             )}
                           </Button>
@@ -371,7 +449,9 @@ export default function SettingsPage() {
                               ) : (
                                 <AlertCircle className="w-16 h-16 mt-2 shrink-0" />
                               )}
-                              <span className="text-body-small">{regenerateMessage}</span>
+                              <span className="text-body-small">
+                                {regenerateMessage}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -385,6 +465,76 @@ export default function SettingsPage() {
               <div className="px-24 py-16 border-t border-border-faint bg-background-base">
                 <p className="text-mono-x-small font-mono text-black-alpha-32">
                   Powered by Firecrawl - Web scraping for AI applications
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Location Section Label */}
+        <div className="py-24 lg:py-32 relative">
+          <div className="h-1 bottom-0 absolute w-screen left-[calc(50%-50vw)] bg-border-faint" />
+
+          <div className="flex items-center gap-16">
+            <div className="w-2 h-16 bg-heat-100" />
+            <div className="flex gap-12 items-center text-mono-x-small text-black-alpha-32 font-mono">
+              <MapPin className="w-14 h-14" />
+              <span className="uppercase tracking-wider">Location</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Location Content */}
+        <div className="pb-32">
+          {loading ? (
+            <div className="bg-white rounded-12 border border-border-faint p-24 max-w-600">
+              <div className="space-y-16">
+                <Skeleton className="h-16 w-128" />
+                <Skeleton className="h-48 w-full rounded-8" />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-12 border border-border-faint overflow-hidden max-w-600">
+              <div className="p-24 space-y-16">
+                <div>
+                  <h3 className="text-label-medium font-semibold text-accent-black mb-8">
+                    Your Location
+                  </h3>
+                  <p className="text-body-small text-black-alpha-48 mb-16">
+                    Set your default location for scouts. This will be used when
+                    creating new scouts to provide location-aware search
+                    results.
+                  </p>
+
+                  <LocationSelector
+                    value={userLocation}
+                    onChange={saveLocation}
+                    disabled={savingLocation}
+                  />
+
+                  {locationMessage && (
+                    <div
+                      className={`flex items-start gap-8 mt-12 p-12 rounded-8 ${
+                        locationMessage.includes("successfully")
+                          ? "bg-accent-forest/10 text-accent-forest border border-accent-forest/20"
+                          : "bg-accent-crimson/10 text-accent-crimson border border-accent-crimson/20"
+                      }`}
+                    >
+                      {locationMessage.includes("successfully") ? (
+                        <Check className="w-16 h-16 mt-2 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-16 h-16 mt-2 shrink-0" />
+                      )}
+                      <span className="text-body-small">{locationMessage}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Info Footer */}
+              <div className="px-24 py-16 border-t border-border-faint bg-background-base">
+                <p className="text-mono-x-small font-mono text-black-alpha-32">
+                  Your location helps scouts find relevant local results
                 </p>
               </div>
             </div>

@@ -34,7 +34,12 @@ function HomeContent() {
 
   // Handle pending query after login
   useEffect(() => {
-    if (pendingQuery && user && !authLoading && !hasProcessedPendingQuery.current) {
+    if (
+      pendingQuery &&
+      user &&
+      !authLoading &&
+      !hasProcessedPendingQuery.current
+    ) {
       hasProcessedPendingQuery.current = true;
       // Remove the query param from URL
       router.replace("/");
@@ -56,47 +61,38 @@ function HomeContent() {
     setIsSubmitting(true);
 
     try {
-      // Get user's location
-      let location: {
-        city: string;
-        latitude: number;
-        longitude: number;
-      } | null = null;
-      if ("geolocation" in navigator) {
-        try {
-          const position = await new Promise<GeolocationPosition>(
-            (resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject);
-            }
-          );
-
-          const { latitude, longitude } = position.coords;
-
-          // Reverse geocode to get city name
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          const data = await response.json();
-          const city =
-            data.address?.city ||
-            data.address?.town ||
-            data.address?.village ||
-            "Unknown";
-
-          location = {
-            city,
-            latitude,
-            longitude,
-          };
-        } catch (error) {
-          console.error("Error getting location:", error);
-        }
-      }
-
       // Get current user
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
+      // Get user's location from preferences
+      let location: {
+        city: string;
+        state?: string;
+        country?: string;
+        latitude: number;
+        longitude: number;
+      } | null = null;
+
+      if (user?.id) {
+        const { data: prefs } = await supabase
+          .from("user_preferences")
+          .select("location")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (prefs?.location) {
+          const userLoc = prefs.location;
+          location = {
+            city: userLoc.city || userLoc.country || "Unknown",
+            state: userLoc.state || undefined,
+            country: userLoc.country || undefined,
+            latitude: userLoc.latitude || 0,
+            longitude: userLoc.longitude || 0,
+          };
+        }
+      }
 
       // Check scout limit (max 5 per user)
       const { count: scoutCount, error: countError } = await supabase
@@ -112,7 +108,9 @@ function HomeContent() {
       }
 
       if (scoutCount !== null && scoutCount >= 5) {
-        alert("You have reached the maximum limit of 5 scouts. Please delete an existing scout to create a new one.");
+        alert(
+          "You have reached the maximum limit of 5 scouts. Please delete an existing scout to create a new one.",
+        );
         setIsSubmitting(false);
         return;
       }
@@ -129,7 +127,12 @@ function HomeContent() {
         .single();
 
       if (error) {
-        console.error("Error creating scout:", error.message, error.code, error.details);
+        console.error(
+          "Error creating scout:",
+          error.message,
+          error.code,
+          error.details,
+        );
         alert(`Error creating scout: ${error.message}`);
         setIsSubmitting(false);
         return;
@@ -138,7 +141,7 @@ function HomeContent() {
       if (scoutData) {
         // Redirect to scout page with query as URL parameter
         router.push(
-          `/scout/${scoutData.id}?initialQuery=${encodeURIComponent(queryText)}`
+          `/scout/${scoutData.id}?initialQuery=${encodeURIComponent(queryText)}`,
         );
       }
     } catch (error) {
@@ -158,7 +161,7 @@ function HomeContent() {
     if (!user) {
       // Redirect to login with the query as a pending action
       router.push(
-        `/login?pendingQuery=${encodeURIComponent(query)}&redirectTo=/`
+        `/login?pendingQuery=${encodeURIComponent(query)}&redirectTo=/`,
       );
       return;
     }

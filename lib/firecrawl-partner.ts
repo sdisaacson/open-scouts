@@ -4,7 +4,12 @@ import { supabaseServer } from "./supabase/server";
 
 const FIRECRAWL_API_URL = "https://api.firecrawl.dev";
 
-export type FirecrawlKeyStatus = "pending" | "active" | "fallback" | "failed" | "invalid";
+export type FirecrawlKeyStatus =
+  | "pending"
+  | "active"
+  | "fallback"
+  | "failed"
+  | "invalid";
 
 export interface CreateFirecrawlKeyResult {
   success: boolean;
@@ -26,83 +31,99 @@ export interface FirecrawlKeyInfo {
  */
 export async function createFirecrawlKeyForUser(
   userId: string,
-  email: string
+  email: string,
 ): Promise<CreateFirecrawlKeyResult> {
   const partnerKey = process.env.FIRECRAWL_API_KEY;
 
   if (!partnerKey) {
-    console.error("[Firecrawl Partner] FIRECRAWL_API_KEY (partner key) not configured");
+    console.error(
+      "[Firecrawl Partner] FIRECRAWL_API_KEY (partner key) not configured",
+    );
     return { success: false, error: "Partner key not configured" };
   }
 
   try {
     console.log(`[Firecrawl Partner] Creating API key for user: ${email}`);
 
-    const response = await fetch(`${FIRECRAWL_API_URL}/admin/integration/create-user`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${partnerKey}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${FIRECRAWL_API_URL}/admin/integration/create-user`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${partnerKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       },
-      body: JSON.stringify({ email }),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[Firecrawl Partner] API error: ${response.status} - ${errorText}`);
+      console.error(
+        `[Firecrawl Partner] API error: ${response.status} - ${errorText}`,
+      );
 
       // Update user preferences with failed status
-      await supabaseServer
-        .from("user_preferences")
-        .upsert({
+      await supabaseServer.from("user_preferences").upsert(
+        {
           user_id: userId,
           firecrawl_key_status: "failed",
           firecrawl_key_error: `API error: ${response.status} - ${errorText}`,
-        }, {
+        },
+        {
           onConflict: "user_id",
-        });
+        },
+      );
 
       return {
         success: false,
-        error: response.status === 401
-          ? "Invalid partner key"
-          : `Failed to create API key: ${response.status}`,
+        error:
+          response.status === 401
+            ? "Invalid partner key"
+            : `Failed to create API key: ${response.status}`,
       };
     }
 
     const data = await response.json();
     const { apiKey, alreadyExisted } = data;
 
-    console.log(`[Firecrawl Partner] API key created successfully (alreadyExisted: ${alreadyExisted})`);
+    console.log(
+      `[Firecrawl Partner] API key created successfully (alreadyExisted: ${alreadyExisted})`,
+    );
 
     // Store the API key in user preferences
-    await supabaseServer
-      .from("user_preferences")
-      .upsert({
+    await supabaseServer.from("user_preferences").upsert(
+      {
         user_id: userId,
         firecrawl_api_key: apiKey,
         firecrawl_key_status: "active",
         firecrawl_key_created_at: new Date().toISOString(),
         firecrawl_key_error: null,
-      }, {
+      },
+      {
         onConflict: "user_id",
-      });
+      },
+    );
 
     return { success: true, apiKey, alreadyExisted };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`[Firecrawl Partner] Error creating API key: ${errorMessage}`);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error(
+      `[Firecrawl Partner] Error creating API key: ${errorMessage}`,
+    );
 
     // Update user preferences with failed status
-    await supabaseServer
-      .from("user_preferences")
-      .upsert({
+    await supabaseServer.from("user_preferences").upsert(
+      {
         user_id: userId,
         firecrawl_key_status: "failed",
         firecrawl_key_error: errorMessage,
-      }, {
+      },
+      {
         onConflict: "user_id",
-      });
+      },
+    );
 
     return { success: false, error: errorMessage };
   }
@@ -112,9 +133,12 @@ export async function createFirecrawlKeyForUser(
  * Validates a Firecrawl API key using the partner integration API.
  * Returns the associated team name and email if valid.
  */
-export async function validateFirecrawlKey(
-  apiKey: string
-): Promise<{ valid: boolean; teamName?: string; email?: string; error?: string }> {
+export async function validateFirecrawlKey(apiKey: string): Promise<{
+  valid: boolean;
+  teamName?: string;
+  email?: string;
+  error?: string;
+}> {
   const partnerKey = process.env.FIRECRAWL_API_KEY;
 
   if (!partnerKey) {
@@ -122,14 +146,17 @@ export async function validateFirecrawlKey(
   }
 
   try {
-    const response = await fetch(`${FIRECRAWL_API_URL}/admin/integration/validate-api-key`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${partnerKey}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${FIRECRAWL_API_URL}/admin/integration/validate-api-key`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${partnerKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ apiKey }),
       },
-      body: JSON.stringify({ apiKey }),
-    });
+    );
 
     if (response.status === 404) {
       return { valid: false, error: "API key not found or was deleted" };
@@ -153,9 +180,11 @@ export async function validateFirecrawlKey(
  * Gets the Firecrawl API key for a user, or marks them for fallback.
  * This is used by edge functions to get the appropriate key.
  */
-export async function getFirecrawlKeyForUser(
-  userId: string
-): Promise<{ apiKey: string | null; status: FirecrawlKeyStatus; useFallback: boolean }> {
+export async function getFirecrawlKeyForUser(userId: string): Promise<{
+  apiKey: string | null;
+  status: FirecrawlKeyStatus;
+  useFallback: boolean;
+}> {
   try {
     const { data, error } = await supabaseServer
       .from("user_preferences")
@@ -171,7 +200,11 @@ export async function getFirecrawlKeyForUser(
 
     // If key exists and is active, use it
     if (firecrawl_api_key && firecrawl_key_status === "active") {
-      return { apiKey: firecrawl_api_key, status: "active", useFallback: false };
+      return {
+        apiKey: firecrawl_api_key,
+        status: "active",
+        useFallback: false,
+      };
     }
 
     // Otherwise, use fallback
@@ -191,7 +224,7 @@ export async function getFirecrawlKeyForUser(
  */
 export async function markFirecrawlKeyInvalid(
   userId: string,
-  reason: string
+  reason: string,
 ): Promise<void> {
   await supabaseServer
     .from("user_preferences")
@@ -214,16 +247,14 @@ export async function logFirecrawlUsage(params: {
   apiCallsCount?: number;
 }): Promise<void> {
   try {
-    await supabaseServer
-      .from("firecrawl_usage_logs")
-      .insert({
-        user_id: params.userId,
-        scout_id: params.scoutId || null,
-        execution_id: params.executionId || null,
-        used_fallback: params.usedFallback,
-        fallback_reason: params.fallbackReason || null,
-        api_calls_count: params.apiCallsCount || 1,
-      });
+    await supabaseServer.from("firecrawl_usage_logs").insert({
+      user_id: params.userId,
+      scout_id: params.scoutId || null,
+      execution_id: params.executionId || null,
+      used_fallback: params.usedFallback,
+      fallback_reason: params.fallbackReason || null,
+      api_calls_count: params.apiCallsCount || 1,
+    });
   } catch (error) {
     // Don't fail the main operation if logging fails
     console.error("[Firecrawl Partner] Failed to log usage:", error);
@@ -233,11 +264,15 @@ export async function logFirecrawlUsage(params: {
 /**
  * Gets the Firecrawl key status for display in the settings page.
  */
-export async function getFirecrawlKeyInfo(userId: string): Promise<FirecrawlKeyInfo> {
+export async function getFirecrawlKeyInfo(
+  userId: string,
+): Promise<FirecrawlKeyInfo> {
   try {
     const { data, error } = await supabaseServer
       .from("user_preferences")
-      .select("firecrawl_api_key, firecrawl_key_status, firecrawl_key_created_at, firecrawl_key_error")
+      .select(
+        "firecrawl_api_key, firecrawl_key_status, firecrawl_key_created_at, firecrawl_key_error",
+      )
       .eq("user_id", userId)
       .single();
 
@@ -272,7 +307,7 @@ export async function getFirecrawlKeyInfo(userId: string): Promise<FirecrawlKeyI
  */
 export async function regenerateFirecrawlKey(
   userId: string,
-  email: string
+  email: string,
 ): Promise<CreateFirecrawlKeyResult> {
   console.log(`[Firecrawl Partner] Regenerating API key for user: ${email}`);
 

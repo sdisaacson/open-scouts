@@ -15,7 +15,9 @@ export async function GET(request: Request) {
 
     if (!error) {
       // Get the authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (user?.id && user?.email) {
         // Check if user already has an active Firecrawl API key
@@ -26,14 +28,18 @@ export async function GET(request: Request) {
           .maybeSingle();
 
         // Only create key if user doesn't have an active one
-        const hasActiveKey = preferences?.firecrawl_api_key &&
+        const hasActiveKey =
+          preferences?.firecrawl_api_key &&
           preferences?.firecrawl_key_status === "active";
 
         if (!hasActiveKey) {
           try {
             await createFirecrawlKeyForUser(user.id, user.email);
           } catch (err) {
-            console.error("[Auth Callback] Failed to create Firecrawl key:", err);
+            console.error(
+              "[Auth Callback] Failed to create Firecrawl key:",
+              err,
+            );
           }
         }
       }
@@ -41,7 +47,7 @@ export async function GET(request: Request) {
       // If there's a pending query, redirect to home to process it
       if (pendingQuery) {
         return NextResponse.redirect(
-          `${origin}/?pendingQuery=${encodeURIComponent(pendingQuery)}`
+          `${origin}/?pendingQuery=${encodeURIComponent(pendingQuery)}`,
         );
       }
       return NextResponse.redirect(`${origin}${redirectTo}`);

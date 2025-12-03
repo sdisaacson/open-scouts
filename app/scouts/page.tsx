@@ -57,45 +57,36 @@ export default function ScoutsPage() {
     title: string;
   } | null>(null);
 
-  // Get user's location using browser geolocation API
+  // Load user's location from preferences
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
+    const loadUserLocation = async () => {
+      if (!user?.id) return;
 
-          // Reverse geocode to get city name
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-            );
-            const data = await response.json();
-            const city =
-              data.address?.city ||
-              data.address?.town ||
-              data.address?.village ||
-              "Unknown";
+      try {
+        const { data } = await supabase
+          .from("user_preferences")
+          .select("location")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-            setLocation({
-              city,
-              latitude,
-              longitude,
-            });
-          } catch (error) {
-            console.error("Error getting city name:", error);
-            setLocation({
-              city: "Unknown",
-              latitude,
-              longitude,
-            });
-          }
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        },
-      );
-    }
-  }, []);
+        if (data?.location) {
+          // Convert from UserLocation format to scout Location format
+          const userLoc = data.location;
+          setLocation({
+            city: userLoc.city || userLoc.country || "Unknown",
+            state: userLoc.state || undefined,
+            country: userLoc.country || undefined,
+            latitude: userLoc.latitude || 0,
+            longitude: userLoc.longitude || 0,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading user location:", error);
+      }
+    };
+
+    loadUserLocation();
+  }, [user?.id]);
 
   const loadScouts = async () => {
     if (!user?.id) {

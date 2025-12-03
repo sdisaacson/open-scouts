@@ -98,68 +98,57 @@ export default function ScoutPage() {
   // Loading state: true when submitted OR streaming
   const isLoading = status === "submitted" || status === "streaming";
 
-  // Get user's location using browser geolocation API
+  // Load user's location from preferences
   useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
+    const loadUserLocation = async () => {
+      try {
+        // Get current user
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user?.id) return;
 
-          // Reverse geocode to get city name
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-            );
-            const data = await response.json();
-            const city =
-              data.address?.city ||
-              data.address?.town ||
-              data.address?.village ||
-              "Unknown";
-            const state = data.address?.state || data.address?.region;
-            const country = data.address?.country;
+        // Load location from user preferences
+        const { data } = await supabase
+          .from("user_preferences")
+          .select("location")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-            const locationData: Location = {
-              city,
-              state,
-              country,
-              latitude,
-              longitude,
-            };
+        if (data?.location) {
+          const userLoc = data.location;
+          const locationData: Location = {
+            city: userLoc.city || userLoc.country || "Unknown",
+            state: userLoc.state || undefined,
+            country: userLoc.country || undefined,
+            latitude: userLoc.latitude || 0,
+            longitude: userLoc.longitude || 0,
+          };
 
-            setLocation(locationData);
+          setLocation(locationData);
 
-            // Update scout with location if it exists and doesn't have a location yet
-            if (scoutId && scoutId !== "new") {
-              const { data: scoutData } = await supabase
+          // Update scout with location if it exists and doesn't have a location yet
+          if (scoutId && scoutId !== "new") {
+            const { data: scoutData } = await supabase
+              .from("scouts")
+              .select("location")
+              .eq("id", scoutId)
+              .single();
+
+            if (scoutData && !scoutData.location) {
+              await supabase
                 .from("scouts")
-                .select("location")
-                .eq("id", scoutId)
-                .single();
-
-              if (scoutData && !scoutData.location) {
-                await supabase
-                  .from("scouts")
-                  .update({ location: locationData })
-                  .eq("id", scoutId);
-              }
+                .update({ location: locationData })
+                .eq("id", scoutId);
             }
-          } catch (error) {
-            console.error("Error getting city name:", error);
-            setLocation({
-              city: "Unknown",
-              state: undefined,
-              country: undefined,
-              latitude,
-              longitude,
-            });
           }
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-        },
-      );
-    }
+        }
+      } catch (error) {
+        console.error("Error loading user location:", error);
+      }
+    };
+
+    loadUserLocation();
   }, [scoutId]);
 
   const loadCurrentScout = useCallback(async () => {
