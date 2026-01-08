@@ -48,7 +48,7 @@ type AdminData = {
   fetchedAt: string;
 };
 
-const ADMIN_EMAIL_DOMAIN = "@sideguide.dev";
+const ADMIN_EMAIL_DOMAIN = "@sisaacson.io";
 const ROWS_PER_PAGE = 10;
 
 export default function AdminPage() {
