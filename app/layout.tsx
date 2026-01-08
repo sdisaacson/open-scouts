@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { PropsWithChildren, Suspense } from "react";
 import type { Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/shadcn/toast";
 import { getURL } from "@/utils/helpers";
 import { GeistMono } from "geist/font/mono";
@@ -127,6 +128,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           </CurrencyProvider>
         </AuthProvider>
         <ReferrerCookie />
+        <Analytics />
       </body>
     </html>
   );
