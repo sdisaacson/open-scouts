@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/next';
 import { Metadata } from "next";
 import { PropsWithChildren, Suspense } from "react";
 import type { Viewport } from "next";
@@ -133,7 +132,6 @@ export default function RootLayout({ children }: PropsWithChildren) {
           </CurrencyProvider>
         </AuthProvider>
         <ReferrerCookie />
-        <Analytics />
       </body>
     </html>
   );
