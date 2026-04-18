@@ -39,24 +39,26 @@ export async function GET(request: Request) {
           const posthog = getPostHogClient();
           const isNewUser = !hasActiveKey;
 
-          posthog.identify({
-            distinctId: user.id,
-            properties: {
-              email: user.email,
-            },
-          });
+          if (posthog) {
+            posthog.identify({
+              distinctId: user.id,
+              properties: {
+                email: user.email,
+              },
+            });
 
-          posthog.capture({
-            distinctId: user.id,
-            event: isNewUser ? "user_signed_up" : "user_logged_in",
-            properties: {
-              method: "google", // Note: This might be inaccurate for password reset flow, but keeping consistent
-              email: user.email,
-              is_new_user: isNewUser,
-            },
-          });
+            posthog.capture({
+              distinctId: user.id,
+              event: isNewUser ? "user_signed_up" : "user_logged_in",
+              properties: {
+                method: "google", // Note: This might be inaccurate for password reset flow, but keeping consistent
+                email: user.email,
+                is_new_user: isNewUser,
+              },
+            });
 
-          await posthog.shutdown();
+            await posthog.shutdown();
+          }
 
           if (!hasActiveKey) {
             try {
