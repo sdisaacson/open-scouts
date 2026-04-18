@@ -54,7 +54,7 @@ const meta = {
     "Create AI scouts that continuously search and notify you when they find what you're looking for. Open-source monitoring powered by AI.",
   cardImage: "/og.png",
   robots: "follow, index",
-  favicon: "/favicon.png",
+  favicon: "/favicon.ico",
   url: getURL(),
 };
 
