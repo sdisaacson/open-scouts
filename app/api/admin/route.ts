@@ -5,7 +5,7 @@ import {
 } from "@/lib/supabase/server";
 
 // Admin email domain check
-const ADMIN_EMAIL_DOMAIN = "@sideguide.dev";
+const ADMIN_EMAIL_DOMAIN = "@sisaacson.io";
 
 // Helper to verify admin access
 async function verifyAdminAccess() {

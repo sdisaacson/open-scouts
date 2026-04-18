@@ -48,7 +48,7 @@ type AdminData = {
   fetchedAt: string;
 };
 
-const ADMIN_EMAIL_DOMAIN = "@sideguide.dev";
+const ADMIN_EMAIL_DOMAIN = "@sisaacson.io";
 const ROWS_PER_PAGE = 10;
 
 export default function AdminPage() {
@@ -457,7 +457,8 @@ export default function AdminPage() {
                           }
 
                           // Always show last page
-                          if (!pages.includes(totalPages)) pages.push(totalPages);
+                          if (!pages.includes(totalPages))
+                            pages.push(totalPages);
                         }
 
                         return pages.map((page, idx) =>

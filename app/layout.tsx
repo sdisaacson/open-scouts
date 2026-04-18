@@ -109,6 +109,11 @@ export default function RootLayout({ children }: PropsWithChildren) {
     <html lang="en">
       <head>
         <ColorStyles />
+        <script
+          defer
+          src="https://umami.hosting.sisaacson.io/script.js"
+          data-website-id="7031e69e-8388-4761-afd1-9a4983e15b1b"
+        />
       </head>
       <body
         className={`${GeistMono.variable} ${robotoMono.variable} ${suisse.variable} font-sans text-accent-black bg-background-base overflow-x-clip`}

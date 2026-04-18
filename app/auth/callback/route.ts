@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const redirectTo = searchParams.get("redirectTo") || "/";
+  const next = searchParams.get("next") || redirectTo;
   const pendingQuery = searchParams.get("pendingQuery") || "";
 
   if (code) {
@@ -21,23 +22,21 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser();
 
       if (user?.id && user?.email) {
-        // Check if user already has a Firecrawl API key (custom or sponsored)
-        const { data: preferences } = await supabaseServer
-          .from("user_preferences")
-          .select("firecrawl_api_key, firecrawl_key_status, firecrawl_custom_api_key")
-          .eq("user_id", user.id)
-          .maybeSingle();
+        try {
+          // Check if user already has an active Firecrawl API key
+          const { data: preferences } = await supabaseServer
+            .from("user_preferences")
+            .select("firecrawl_api_key, firecrawl_key_status")
+            .eq("user_id", user.id)
+            .maybeSingle();
 
-        // Skip sponsored key creation if user has a custom key or active sponsored key
-        const hasCustomKey = !!preferences?.firecrawl_custom_api_key;
-        const hasActiveKey =
-          hasCustomKey ||
-          (preferences?.firecrawl_api_key &&
-            preferences?.firecrawl_key_status === "active");
+          // Only create key if user doesn't have an active one
+          const hasActiveKey =
+            preferences?.firecrawl_api_key &&
+            preferences?.firecrawl_key_status === "active";
 
-        // PostHog: Identify user and track Google OAuth login on server side (optional)
-        const posthog = getPostHogClient();
-        if (posthog) {
+          // PostHog: Identify user and track Google OAuth login on server side
+          const posthog = getPostHogClient();
           const isNewUser = !hasActiveKey;
 
           posthog.identify({
@@ -51,24 +50,30 @@ export async function GET(request: Request) {
             distinctId: user.id,
             event: isNewUser ? "user_signed_up" : "user_logged_in",
             properties: {
-              method: "google",
+              method: "google", // Note: This might be inaccurate for password reset flow, but keeping consistent
               email: user.email,
               is_new_user: isNewUser,
             },
           });
 
           await posthog.shutdown();
-        }
 
-        if (!hasActiveKey) {
-          try {
-            await createFirecrawlKeyForUser(user.id, user.email);
-          } catch (err) {
-            console.error(
-              "[Auth Callback] Failed to create Firecrawl key:",
-              err,
-            );
+          if (!hasActiveKey) {
+            try {
+              await createFirecrawlKeyForUser(user.id, user.email);
+            } catch (err) {
+              console.error(
+                "[Auth Callback] Failed to create Firecrawl key:",
+                err,
+              );
+            }
           }
+        } catch (err) {
+          console.error(
+            "[Auth Callback] Error in side effects (PostHog/Firecrawl):",
+            err,
+          );
+          // Continue with redirect even if side effects fail
         }
       }
 
@@ -78,7 +83,7 @@ export async function GET(request: Request) {
           `${origin}/?pendingQuery=${encodeURIComponent(pendingQuery)}`,
         );
       }
-      return NextResponse.redirect(`${origin}${redirectTo}`);
+      return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
