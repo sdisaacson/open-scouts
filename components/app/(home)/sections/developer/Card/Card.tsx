@@ -6,7 +6,7 @@ interface DeveloperCardProps {
   subtitle: string;
   description: string;
   icon: React.FC;
-  action: React.ReactNode;
+  action?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
 }
@@ -41,7 +41,7 @@ export default function DeveloperCard(props: DeveloperCardProps) {
           {props.description}
         </div>
 
-        {props.action}
+        {props.action && <div className="mt-24">{props.action}</div>}
       </div>
     </div>
   );

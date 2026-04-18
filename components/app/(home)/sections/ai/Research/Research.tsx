@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 
 import useSwitchingCode from "@/hooks/useSwitchingCode";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import useEncryptedLoading from "@/hooks/useEncryptedLoading";
 
 import AiResearchResults from "./Results/Results";
@@ -37,7 +36,6 @@ export default function AiResearch() {
       <div className="px-28 lg:px-76 py-20 flex gap-16 text-body-medium items-center relative">
         <div className="h-1 bottom-0 w-full bg-border-faint left-0 absolute" />
 
-        <FirecrawlIcon className="size-24" />
         <Title done={step === 10} />
       </div>
 

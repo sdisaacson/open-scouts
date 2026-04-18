@@ -1,4 +1,3 @@
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import Image from "@/components/shared/image/Image";
 
 import Curl from "./_svg/Curl";
@@ -8,7 +7,6 @@ export default function CoreReliable() {
   return (
     <div className="w-full">
       <Wrapper
-        icon={<FirecrawlIcon className="size-28" />}
         label="Firecrawl"
         style={{ "--border": "var(--heat-12)" } as React.CSSProperties}
       >
@@ -47,7 +45,7 @@ const Wrapper = ({
   style,
 }: {
   label: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   style?: React.CSSProperties;
 }) => {
@@ -58,7 +56,7 @@ const Wrapper = ({
     >
       <div className="flex gap-12 lg:gap-16 w-140 lg:w-136 items-center">
         <div className="size-40 flex-center relative before:inside-border before:border-border-faint rounded-full">
-          {icon}
+          {icon && icon}
         </div>
 
         <div className="text-body-large">{label}</div>

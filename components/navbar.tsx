@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/shadcn-default/button";
 import { Logo } from "@/components/ui/shadcn/Logo";
 import { useRouter } from "next/navigation";
-import { Github, Settings as SettingsIcon } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
 
 export function Navbar() {
   const router = useRouter();
@@ -47,19 +47,6 @@ export function Navbar() {
               onClick={() => router.push("/settings")}
             >
               <SettingsIcon size={18} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="no-underline hover:no-underline"
-              onClick={() =>
-                window.open(
-                  "https://github.com/firecrawl/open-scouts",
-                  "_blank",
-                )
-              }
-            >
-              <Github size={18} className="sm:w-5 sm:h-5" />
             </Button>
           </nav>
         </div>

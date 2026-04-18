@@ -526,8 +526,6 @@ export { FireActionLink } from './fire-action-link';
 Components specific to brand presentation:
 
 - `brand-hero.tsx`: Brand page hero section
-- `brand-assets-copy.tsx`: Asset copying functionality
-- `brand-assets-download.tsx`: Asset download functionality
 - `brand-group.tsx`: Brand asset grouping
 - `firecrawl-logo.tsx`: Logo component variants
 - `firecrawl-wordmark.tsx`: Wordmark components
@@ -540,11 +538,9 @@ export default function BrandHero() {
     <section className='max-w-[1112px] mx-auto -mt-1'>
       <SectionHead
         action={(
-          <a className="contents" href="/brand/brand-assets.zip" download>
-            <Button className='mx-auto' size='large' variant='primary'>
-              Download brand assets
-            </Button>
-          </a>
+          <Button className='mx-auto' size='large' variant='primary'>
+            Brand Assets
+          </Button>
         )}
         description="Welcome to the Firecrawl brand hub..."
         title={<><span className="text-heat-100">Firecrawl </span> Brand Assets</>}
@@ -563,14 +559,6 @@ export default function BrandHero() {
 
 The brand assets are organized in the `public/brand/` directory with comprehensive logo and marketing materials:
 
-#### Logo Variants
-- `firecrawl-logo.svg/png`: Primary logo
-- `firecrawl-light-logo.svg/png`: Light theme variant
-- `firecrawl-wordmark.svg/png`: Text-only wordmark
-- `firecrawl-light-wordmark.svg/png`: Light wordmark variant
-- `firecrawl-icon.png`: App icon
-- `firecrawl-app-icon.png`: Application icon variant
-
 #### Special Assets
 - `firecrawl-logo-transparent.png`: Transparent background logo
 - `firecrawl-logo-with-fire.png`: Logo with fire element
@@ -582,15 +570,9 @@ The brand assets are organized in the `public/brand/` directory with comprehensi
 - `we-handle-all-the-hard-stuff--firecrawl.jpg`
 - `trusted-by-devs-at-top-companies--firecrawl.jpg`
 
-#### Asset Distribution
-- `brand-assets.zip`: Complete brand asset package for download
-
 ### Brand Usage Guidelines
 
 #### Logo Usage
-- Use `firecrawl-logo.svg` for primary brand representation
-- Use `firecrawl-light-logo.svg` on dark backgrounds
-- Use `firecrawl-wordmark.svg` when space is constrained
 - Maintain proper spacing and sizing ratios
 
 #### Color Usage

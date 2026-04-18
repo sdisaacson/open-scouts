@@ -1,4 +1,3 @@
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 
 import CoreFastFlame from "./Flame/Flame";
 import CoreFastRows from "./Rows/Rows";
@@ -23,7 +22,7 @@ export default function CoreFast() {
             "0px 40px 48px -20px rgba(0, 0, 0, 0.02), 0px 32px 32px -20px rgba(0, 0, 0, 0.03), 0px 16px 24px -12px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.03), 0px 0px 0px 12px #F9F9F9",
         }}
       >
-        <FirecrawlIcon className="size-56" innerFillColor="#fff" />
+        <div className="size-56" />
       </div>
 
       <CoreFastFlame />

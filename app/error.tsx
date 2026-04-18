@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import { Connector } from "@/components/shared/layout/curvy-rect";
 import { AsciiExplosion } from "@/components/shared/effects/flame/ascii-explosion";
 import AnimatedWidth from "@/components/shared/layout/animated-width";
@@ -62,7 +61,6 @@ export default function ErrorBoundary({
             </div>
           </div>
           <div className="flex items-center justify-center relative z-10">
-            <FirecrawlIcon className="size-48" />
           </div>
         </div>
 
@@ -137,7 +135,7 @@ export default function ErrorBoundary({
               <span>Go Home</span>
             </button>
             <button
-              className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 h-40 px-20 text-label-medium gap-8 bg-heat-100 text-white hover:bg-heat-200 active:scale-[0.98] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(250,93,25,0.25)] flex-1"
+              className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 h-40 px-20 text-label-medium gap-8 bg-[#262626] text-white hover:bg-[#1a1a1a] active:scale-[0.98] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex-1"
               onClick={reset}
             >
               Try Again
@@ -248,7 +246,7 @@ export default function ErrorBoundary({
               <span>Go Home</span>
             </button>
             <button
-              className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 h-40 px-20 text-label-medium gap-8 bg-heat-100 text-white hover:bg-heat-200 active:scale-[0.98] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(250,93,25,0.25)] flex-1"
+              className="inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 h-40 px-20 text-label-medium gap-8 bg-[#262626] text-white hover:bg-[#1a1a1a] active:scale-[0.98] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex-1"
               onClick={reset}
             >
               Try Again

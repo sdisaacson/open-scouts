@@ -4,7 +4,6 @@ import CurvyRect from "@/components/shared/layout/curvy-rect";
 import SectionHead from "@/components/shared/section-head/SectionHead";
 
 import BadgeIcon from "./_svg/BadgeIcon";
-import GithubIcon from "./_svg/GithubIcon";
 import IntegrationsIcon from "./_svg/IntegrationsIcon";
 import OpenSourceIcon from "./_svg/OpenSourceIcon";
 import DeveloperCard from "./Card/Card";
@@ -79,18 +78,6 @@ export default function Developer() {
         </div>
 
         <DeveloperCard
-          action={
-            <Link
-              className="contents"
-              href="https://github.com/firecrawl/firecrawl"
-              target="_blank"
-            >
-              <Button size="large" variant="secondary">
-                <GithubIcon />
-                Check out our repo
-              </Button>
-            </Link>
-          }
           description="Developed transparently and collaboratively. Join our community of contributors."
           icon={OpenSourceIcon}
           subtitle="Open Source"

@@ -88,7 +88,7 @@ export const showActionToast = (message: string, params: ExternalToast) => {
       return (
         <button
           onClick={action.onClick}
-          className="rounded-8 bg-heat-100 text-accent-white px-12 py-6 text-label-small"
+          className="rounded-8 bg-[#262626] text-accent-white px-12 py-6 text-label-small"
         >
           {action.label}
         </button>

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import Button from "../button/Button";
 import { Connector } from "../layout/curvy-rect";
-import HeaderBrandKit from "./BrandKit/BrandKit";
 import HeaderDropdownWrapper from "./Dropdown/Wrapper/Wrapper";
-import HeaderGithub from "./Github/Github";
 import HeaderNav from "./Nav/Nav";
 import HeaderWrapper from "./Wrapper/Wrapper";
 import HeaderToggle from "./Toggle/Toggle";
@@ -28,7 +26,12 @@ export default function Header() {
 
         <HeaderWrapper>
           <div className="flex gap-24 items-center">
-            <HeaderBrandKit />
+            <Link
+              className="text-lg text-accent-black no-underline hover:no-underline"
+              href="/"
+            >
+              Open Scouts
+            </Link>
           </div>
 
           <div className="flex gap-24 items-center lg-max:hidden">
@@ -37,7 +40,6 @@ export default function Header() {
               ·
             </div>
             <div className="flex gap-8 items-center">
-              <HeaderGithub />
               <UserMenu />
             </div>
           </div>

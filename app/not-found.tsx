@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import { Connector } from "@/components/shared/layout/curvy-rect";
 import { AsciiExplosion } from "@/components/shared/effects/flame/ascii-explosion";
 import ScrambleText from "@/components/ui/motion/scramble-text";
@@ -32,7 +31,6 @@ export default function NotFound() {
             </div>
           </div>
           <div className="flex items-center justify-center relative z-10">
-            <FirecrawlIcon className="size-48" />
           </div>
         </div>
 

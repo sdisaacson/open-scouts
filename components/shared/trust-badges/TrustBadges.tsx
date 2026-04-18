@@ -1,7 +1,6 @@
 "use client";
 
 import Badge from "@/components/ui/shadcn/badge";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 
 export default function TrustBadges() {
   return (
@@ -12,7 +11,6 @@ export default function TrustBadges() {
 
         <div className="flex flex-wrap gap-12 justify-center">
           <Badge className="px-12 pt-16">
-            <FirecrawlIcon className="size-20" />
             <div className="text-label-x-small">
               Used by over 500,000 developers
             </div>

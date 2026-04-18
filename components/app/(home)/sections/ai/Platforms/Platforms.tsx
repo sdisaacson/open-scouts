@@ -6,7 +6,6 @@ import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 
 import { Connector } from "@/components/shared/layout/curvy-rect";
 import useSwitchingCode from "@/hooks/useSwitchingCode";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import Image from "@/components/shared/image/Image";
 import Spinner from "@/components/ui/spinner";
 import useEncryptedLoading from "@/hooks/useEncryptedLoading";
@@ -47,7 +46,7 @@ export default function AiPlatforms() {
             "0px 24px 32px -12px rgba(0, 0, 0, 0.03), 0px 16px 24px -8px rgba(0, 0, 0, 0.03), 0px 8px 16px -4px rgba(0, 0, 0, 0.03), 0px 0px 0px 1px rgba(0, 0, 0, 0.03), 0px 0px 0px 10px #F9F9F9",
         }}
       >
-        <FirecrawlIcon className="size-52" innerFillColor="#FDFDFD" />
+        <div className="size-52" />
       </div>
 
       <div

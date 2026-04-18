@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 
 import DividerCtaMobile from "./Mobile/Mobile";
 import DividerCtaPixi from "./Pixi/Pixi";
-import FirecrawlIcon from "../firecrawl-icon/firecrawl-icon";
 import DividerCtaFlame from "./Flame/Flame";
 import Link from "next/link";
 
@@ -92,10 +91,7 @@ function DividerCtaDesktop({
 
         <CurvyRect className="h-full w-full absolute top-0 left-0" allSides />
 
-        <Badge className="mb-20 mx-auto">
-          <FirecrawlIcon className="size-20" />
-          Get started
-        </Badge>
+        <Badge className="mb-20 mx-auto">Get started</Badge>
 
         <div className="text-title-h3 mb-16">Ready to build?</div>
 

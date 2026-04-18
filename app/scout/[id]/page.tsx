@@ -619,7 +619,7 @@ export default function ScoutPage() {
                         ) as HTMLFormElement;
                         if (form) form.requestSubmit();
                       }}
-                      className="absolute bottom-8 right-8 w-40 h-40 rounded-8 bg-heat-100 text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-heat-80 transition-colors"
+                      className="absolute bottom-8 right-8 w-40 h-40 rounded-8 bg-[#262626] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1a1a1a] transition-colors"
                     >
                       <CornerDownLeftIcon className="w-20 h-20" />
                     </button>
@@ -724,7 +724,7 @@ export default function ScoutPage() {
                   ) as HTMLFormElement;
                   if (form) form.requestSubmit();
                 }}
-                className="absolute bottom-8 right-8 w-40 h-40 rounded-8 bg-heat-100 text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-heat-80 transition-colors"
+                className="absolute bottom-8 right-8 w-40 h-40 rounded-8 bg-[#262626] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#1a1a1a] transition-colors"
               >
                 <CornerDownLeftIcon className="w-20 h-20" />
               </button>

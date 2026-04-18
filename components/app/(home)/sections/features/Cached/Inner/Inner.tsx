@@ -4,7 +4,6 @@ import { animate } from "motion";
 import Image from "next/image";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import { cn } from "@/lib/utils";
 
 import FeaturesCachedInnerSeparator, {
@@ -422,7 +421,6 @@ export default function FeaturesCachedInner() {
         </svg>
 
         <div className="absolute cw-80 ch-80 rounded-full before:inside-border before:border-black-alpha-4 bg-accent-white flex-center">
-          <FirecrawlIcon className="size-48" innerFillColor="white" />
 
           <svg
             className="absolute cs-80 animate-spin [animation-delay:-0.5s]"

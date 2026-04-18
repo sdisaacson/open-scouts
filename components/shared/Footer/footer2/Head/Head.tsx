@@ -1,10 +1,8 @@
 import { CurvyRect } from "@/components/shared/ui";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import FooterNavItem from "@/components/shared/Footer/footer2/Nav/Item/Item";
 
 import Check from "./_svg/Check";
 import Discord from "./_svg/Discord";
-import Github from "./_svg/Github";
 import Linkedin from "./_svg/Linkedin";
 import Star from "./_svg/Star";
 import X from "./_svg/X";
@@ -23,7 +21,6 @@ export default function FooterHead() {
 
         <div className="lg-max:pb-76 p-32 lg:px-64 lg:py-56 h-full relative">
           <div className="flex items-center gap-2 mb-32">
-            <FirecrawlIcon className="size-28" />
             <Logo />
           </div>
 
@@ -58,17 +55,6 @@ export default function FooterHead() {
               <>
                 <Linkedin />
                 Linkedin
-              </>
-            }
-            target="_blank"
-          />
-          <FooterNavItem
-            className="-mt-1"
-            href="https://github.com/firecrawl/firecrawl"
-            label={
-              <>
-                <Github />
-                Github
               </>
             }
             target="_blank"

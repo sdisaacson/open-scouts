@@ -2,7 +2,6 @@ import { cubicBezier, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import setTimeoutOnVisible, {
   setIntervalOnVisible,
 } from "@/utils/set-timeout-on-visible";
@@ -91,12 +90,7 @@ function FeaturesStealthBullet({
         transition={{ delay: transition.duration - 0.2, duration: 0.5 }}
       />
 
-      <FirecrawlIcon
-        className="size-24"
-        fill="#fff"
-        innerFillColor="var(--heat-100)"
-        style={{ rotate: -data.rotate + "deg" }}
-      />
+      <div className="size-24" style={{ rotate: -data.rotate + "deg" }} />
     </motion.div>
   );
 }

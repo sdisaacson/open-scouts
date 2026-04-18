@@ -59,7 +59,7 @@ export const SlateButton = React.forwardRef<
 
     const colorClasses =
       variant === "primary"
-        ? "bg-heat-100 text-accent-white hover:opacity-90"
+        ? "bg-[#262626] text-accent-white hover:bg-[#1a1a1a]"
         : variant === "ghost"
           ? "bg-transparent text-accent-black hover:bg-black-alpha-2"
           : "bg-black-alpha-4 text-accent-black hover:bg-black-alpha-6";

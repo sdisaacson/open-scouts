@@ -2,7 +2,6 @@ import Badge from "@/components/ui/shadcn/badge";
 import Button from "@/components/ui/shadcn/button";
 import CurvyRect from "@/components/shared/layout/curvy-rect";
 import DividerCtaFlame from "@/components/shared/divider-cta/Flame/Flame";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -23,10 +22,7 @@ export default function DividerCtaMobile({
 
       <CurvyRect className="h-full w-full absolute top-0 left-0" allSides />
 
-      <Badge className="mb-20 mx-auto">
-        <FirecrawlIcon className="size-20" />
-        Get started
-      </Badge>
+      <Badge className="mb-20 mx-auto">Get started</Badge>
 
       <div className="text-title-h3 mb-16 text-center">Ready to build?</div>
 

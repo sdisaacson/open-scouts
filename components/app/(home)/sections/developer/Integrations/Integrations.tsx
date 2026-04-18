@@ -4,7 +4,6 @@ import { animate } from "motion";
 import { HTMLAttributes, useEffect, useRef } from "react";
 
 import data from "@/components/shared/effects/flame/explosion-data.json";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import Image from "@/components/shared/image/Image";
 import { cn } from "@/lib/utils";
 import { sleep } from "@/utils/sleep";
@@ -265,7 +264,7 @@ export default function DeveloperIntegrations() {
 
       <div className="lg-max:pt-66">
         <IconGroup innerCircleClassName="!bg-[#FDFDFD]" data-active>
-          <FirecrawlIcon className="size-52" innerFillColor="#FDFDFD" />
+          <div className="size-52" />
         </IconGroup>
       </div>
     </div>

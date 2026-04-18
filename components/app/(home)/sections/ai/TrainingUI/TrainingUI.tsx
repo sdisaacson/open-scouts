@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import FirecrawlIcon from "@/components/shared/firecrawl-icon/firecrawl-icon";
 import { motion, AnimatePresence } from "motion/react";
 import onVisible from "@/utils/on-visible";
 
@@ -64,7 +63,6 @@ export default function AiTrainingUI() {
     <div ref={ref} className="h-full w-full overflow-hidden">
       {/* Header */}
       <div className="px-28 lg:px-76 py-20 flex gap-16 items-center border-b border-border-faint">
-        <FirecrawlIcon className="size-24" />
         <div className="text-body-medium">AI Training Pipeline</div>
       </div>
 
