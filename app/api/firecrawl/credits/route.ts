@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { supabaseServer } from "@/lib/supabase/server";
 
 const FIRECRAWL_API_URL = "https://api.firecrawl.dev/v1";
 
@@ -18,25 +17,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get the user's Firecrawl API key from preferences (custom key takes priority)
-    const { data: preferences, error: prefError } = await supabaseServer
-      .from("user_preferences")
-      .select("firecrawl_api_key, firecrawl_key_status, firecrawl_custom_api_key")
-      .eq("user_id", user.id)
-      .single();
+    // Use the shared Firecrawl API key from environment variables
+    const apiKey = process.env.FIRECRAWL_API_KEY?.trim() || null;
 
-    // Use custom key if available, otherwise fall back to sponsored key
-    // Trim whitespace to prevent 401 errors from accidentally copied spaces/newlines
-    const apiKey = (preferences?.firecrawl_custom_api_key?.trim() || preferences?.firecrawl_api_key?.trim()) || null;
-    const isCustomKey = !!preferences?.firecrawl_custom_api_key;
-
-    if (prefError || !apiKey) {
+    if (!apiKey) {
       return NextResponse.json({
         success: true,
         data: {
           remainingCredits: null,
           planCredits: null,
-          status: preferences?.firecrawl_key_status || "pending",
+          status: "error",
+          error: "FIRECRAWL_API_KEY is not configured",
         },
       });
     }
@@ -55,15 +46,15 @@ export async function GET() {
         `[Firecrawl Credits] API error: ${response.status} - ${errorText}`,
       );
 
-      // If 401/403, the key might be invalid
+      // If 401/403, the shared key might be invalid
       if (response.status === 401 || response.status === 403) {
         return NextResponse.json({
           success: true,
           data: {
             remainingCredits: null,
             planCredits: null,
-            status: "invalid",
-            error: "API key is invalid",
+            status: "error",
+            error: "Shared Firecrawl API key is invalid",
           },
         });
       }
@@ -83,8 +74,7 @@ export async function GET() {
         planCredits: data.data?.plan_credits ?? null,
         billingPeriodStart: data.data?.billing_period_start ?? null,
         billingPeriodEnd: data.data?.billing_period_end ?? null,
-        status: isCustomKey ? "active" : preferences.firecrawl_key_status,
-        isCustomKey,
+        status: "active",
       },
     });
   } catch (error) {

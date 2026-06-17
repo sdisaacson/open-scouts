@@ -109,45 +109,10 @@ export async function GET() {
     // Get user preferences for additional data
     const { data: preferences, error: prefError } = await supabaseServer
       .from("user_preferences")
-      .select("user_id, firecrawl_key_status, firecrawl_api_key, location");
+      .select("user_id, location");
 
     if (prefError) {
       console.error("Error fetching preferences:", prefError);
-    }
-
-    // Fetch credits for each user with a Firecrawl API key
-    const userCreditsMap = new Map<string, number | null>();
-    if (preferences) {
-      const creditsPromises = preferences
-        .filter((pref) => pref.firecrawl_api_key)
-        .map(async (pref) => {
-          try {
-            const response = await fetch(
-              "https://api.firecrawl.dev/v1/team/credit-usage",
-              {
-                method: "GET",
-                headers: {
-                  Authorization: `Bearer ${pref.firecrawl_api_key}`,
-                },
-              },
-            );
-            if (response.ok) {
-              const data = await response.json();
-              return {
-                userId: pref.user_id,
-                credits: data.data?.remaining_credits ?? null,
-              };
-            }
-            return { userId: pref.user_id, credits: null };
-          } catch {
-            return { userId: pref.user_id, credits: null };
-          }
-        });
-
-      const creditsResults = await Promise.all(creditsPromises);
-      for (const result of creditsResults) {
-        userCreditsMap.set(result.userId, result.credits);
-      }
     }
 
     // Build a map of user stats
@@ -158,8 +123,6 @@ export async function GET() {
         executionCount: number;
         completedExecutions: number;
         failedExecutions: number;
-        firecrawlStatus: string | null;
-        firecrawlCredits: number | null;
         hasLocation: boolean;
       }
     >();
@@ -174,8 +137,6 @@ export async function GET() {
             executionCount: 0,
             completedExecutions: 0,
             failedExecutions: 0,
-            firecrawlStatus: null,
-            firecrawlCredits: null,
             hasLocation: false,
           });
         }
@@ -194,8 +155,6 @@ export async function GET() {
               executionCount: 0,
               completedExecutions: 0,
               failedExecutions: 0,
-              firecrawlStatus: null,
-              firecrawlCredits: null,
               hasLocation: false,
             });
           }
@@ -219,14 +178,10 @@ export async function GET() {
             executionCount: 0,
             completedExecutions: 0,
             failedExecutions: 0,
-            firecrawlStatus: null,
-            firecrawlCredits: null,
             hasLocation: false,
           });
         }
         const stats = userStatsMap.get(pref.user_id)!;
-        stats.firecrawlStatus = pref.firecrawl_key_status;
-        stats.firecrawlCredits = userCreditsMap.get(pref.user_id) ?? null;
         stats.hasLocation = !!pref.location;
       }
     }
@@ -238,8 +193,6 @@ export async function GET() {
         executionCount: 0,
         completedExecutions: 0,
         failedExecutions: 0,
-        firecrawlStatus: null,
-        firecrawlCredits: null,
         hasLocation: false,
       };
 
@@ -253,8 +206,6 @@ export async function GET() {
         executionCount: stats.executionCount,
         completedExecutions: stats.completedExecutions,
         failedExecutions: stats.failedExecutions,
-        firecrawlStatus: stats.firecrawlStatus,
-        firecrawlCredits: stats.firecrawlCredits,
         hasLocation: stats.hasLocation,
       };
     });

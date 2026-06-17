@@ -77,8 +77,7 @@ lib/                    # Library code
 │   ├── client.ts       # Browser Supabase client
 │   ├── server.ts       # Server Component + service-role clients
 │   └── proxy.ts        # (deprecated, see root proxy.ts)
-├── firecrawl.ts        # Firecrawl client setup
-├── firecrawl-partner.ts# Partner API key creation/management
+├── firecrawl.ts        # Firecrawl client setup (uses shared FIRECRAWL_API_KEY env var)
 ├── posthog-server.ts   # Server-side PostHog tracking
 └── utils.ts            # `cn()` (clsx + tailwind-merge), deepEqual, normalizeEmail
 
@@ -249,7 +248,7 @@ Colors come from `colors.json` and are exposed as CSS custom properties:
 - **No Next.js middleware.ts** — auth route protection is handled by a custom proxy utility (`proxy.ts`) and client-side checks.
 - **Protected routes**: `/scouts`, `/settings`, `/scout`, `/template` redirect unauthenticated users to `/login`.
 - **Auth routes**: `/login` redirects authenticated users to `/scouts`.
-- **OAuth flow**: `/login` → Google → `/auth/callback` → exchange code → create Firecrawl partner key (first signup) → redirect.
+- **OAuth flow**: `/login` → Google → `/auth/callback` → exchange code → redirect.
 - **Admin access**: Hardcoded to `@sideguide.dev` email domain. Enforced client-side and server-side (`/api/admin`).
 - **API route pattern**: Use `createServerSupabaseClient()` + `getUser()`, then verify ownership with service-role client if needed.
 
@@ -260,7 +259,7 @@ Colors come from `colors.json` and are exposed as CSS custom properties:
 - Triggered by HTTP POST from `dispatch_due_scouts()` or manual run via `/api/scout/execute`.
 - Validates scout is active and configuration is complete.
 - Creates a `scout_executions` row with status `running`.
-- Fetches user's Firecrawl API key (custom key → sponsored key → shared partner fallback).
+- Reads the shared `FIRECRAWL_API_KEY` from edge function secrets (all users share one key).
 - Queries up to 20 recent successful executions with embeddings for context.
 - Calls OpenAI `gpt-5.1-2025-11-13` with function calling (max 7 loops).
 - Available tools: `searchWeb`, `scrapeWebsite` (both Firecrawl-powered).
@@ -272,8 +271,8 @@ Colors come from `colors.json` and are exposed as CSS custom properties:
   - Sends email via Resend if new results found.
   - Tracks events in PostHog.
 - Error handling:
-  - 401 from Firecrawl → marks key invalid.
-  - 402 from Firecrawl → disables ALL user scouts, marks key invalid.
+  - 401 from Firecrawl → shared key is invalid; logged for admin attention.
+  - 402 from Firecrawl → shared account credits exhausted; disables the user's scouts and shows a generic "service unavailable" message.
   - 3 consecutive tool errors → aborts.
   - Max loops reached → forces completion with `partial` status.
   - 3 consecutive failures → auto-disables scout.
@@ -301,7 +300,7 @@ Copy `.env.example` to `.env` and fill in all values.
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server admin ops, edge functions, DB setup |
 | `DATABASE_URL` | Yes | Migration scripts |
 | `OPENAI_API_KEY` | Yes | Edge function (agent, embeddings, summaries) |
-| `FIRECRAWL_API_KEY` | Yes | Edge function (partner key creation) |
+| `FIRECRAWL_API_KEY` | Yes | Edge function (shared Firecrawl API key for all users) |
 | `RESEND_API_KEY` | Yes | Edge function (email notifications) |
 | `RESEND_FROM_EMAIL` | Yes | Edge function (from address) |
 | `NEXT_PUBLIC_SITE_URL` | Yes | OAuth redirects, OG images |
@@ -354,7 +353,7 @@ If you add tests, place them alongside the code they test or in a `__tests__/` d
 
 - **RLS is mandatory** on all user-facing tables. Never disable RLS without adding proper policies.
 - **Service role key** (`SUPABASE_SERVICE_ROLE_KEY`) bypasses RLS. Only use it in server-side code and edge functions. Never expose it to the client.
-- **Firecrawl API keys**: Custom user keys are stored in `user_preferences.firecrawl_custom_api_key`. Server-side shared keys are set as edge function secrets. Partner keys are created per-user via the Firecrawl admin API.
+- **Firecrawl API key**: A single shared key is used for all users. It is stored in edge function secrets and server-side environment variables, never in `user_preferences` or exposed to the client.
 - **Admin access** is gated by email domain (`@sideguide.dev`).
 - **Security headers** are set globally in `next.config.js` (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 

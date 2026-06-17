@@ -81,13 +81,7 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   user_id UUID UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   -- User location (for scouts)
   location JSONB, -- {country, countryCode, state, stateCode, city, latitude, longitude}
-  -- Firecrawl integration
-  firecrawl_api_key TEXT,
-  firecrawl_custom_api_key TEXT, -- User's own Firecrawl API key (takes priority over auto-generated)
-  firecrawl_key_status TEXT DEFAULT 'pending'
-    CHECK (firecrawl_key_status IN ('pending', 'active', 'fallback', 'failed', 'invalid')),
-  firecrawl_key_created_at TIMESTAMP WITH TIME ZONE,
-  firecrawl_key_error TEXT,
+  -- Firecrawl integration (deprecated: per-user keys removed in favor of a shared env var)
   -- Rate limiting
   last_test_email_at TIMESTAMP WITH TIME ZONE, -- For rate limiting test emails (2 min cooldown)
   -- Timestamps
@@ -107,13 +101,7 @@ COMMENT ON COLUMN user_preferences.location IS
   "longitude": -122.4194
 }';
 
-COMMENT ON COLUMN user_preferences.firecrawl_key_status IS
-'Status of the Firecrawl API key:
-- pending: Key has not been created yet
-- active: Key is valid and in use
-- fallback: Using shared partner key (user key unavailable)
-- failed: Key creation failed
-- invalid: Key was invalidated (deleted by user or expired)';
+
 
 -- =============================================================================
 -- FIRECRAWL USAGE TRACKING TABLE
@@ -148,8 +136,6 @@ CREATE INDEX IF NOT EXISTS idx_scout_execution_steps_execution_id ON scout_execu
 CREATE INDEX IF NOT EXISTS idx_scout_execution_steps_step_number ON scout_execution_steps(step_number);
 
 CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_preferences_firecrawl_status ON user_preferences(firecrawl_key_status)
-  WHERE firecrawl_key_status IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_firecrawl_usage_user_id ON firecrawl_usage_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_firecrawl_usage_created_at ON firecrawl_usage_logs(created_at DESC);

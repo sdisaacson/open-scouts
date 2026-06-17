@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { supabaseServer } from "@/lib/supabase/server";
-import { createFirecrawlKeyForUser } from "@/lib/firecrawl-partner";
 import { getPostHogClient } from "@/lib/posthog-server";
 
 export async function GET(request: Request) {
@@ -23,21 +21,8 @@ export async function GET(request: Request) {
 
       if (user?.id && user?.email) {
         try {
-          // Check if user already has an active Firecrawl API key
-          const { data: preferences } = await supabaseServer
-            .from("user_preferences")
-            .select("firecrawl_api_key, firecrawl_key_status")
-            .eq("user_id", user.id)
-            .maybeSingle();
-
-          // Only create key if user doesn't have an active one
-          const hasActiveKey =
-            preferences?.firecrawl_api_key &&
-            preferences?.firecrawl_key_status === "active";
-
           // PostHog: Identify user and track Google OAuth login on server side
           const posthog = getPostHogClient();
-          const isNewUser = !hasActiveKey;
 
           if (posthog) {
             posthog.identify({
@@ -49,30 +34,18 @@ export async function GET(request: Request) {
 
             posthog.capture({
               distinctId: user.id,
-              event: isNewUser ? "user_signed_up" : "user_logged_in",
+              event: "user_logged_in",
               properties: {
-                method: "google", // Note: This might be inaccurate for password reset flow, but keeping consistent
+                method: "google",
                 email: user.email,
-                is_new_user: isNewUser,
               },
             });
 
             await posthog.shutdown();
           }
-
-          if (!hasActiveKey) {
-            try {
-              await createFirecrawlKeyForUser(user.id, user.email);
-            } catch (err) {
-              console.error(
-                "[Auth Callback] Failed to create Firecrawl key:",
-                err,
-              );
-            }
-          }
         } catch (err) {
           console.error(
-            "[Auth Callback] Error in side effects (PostHog/Firecrawl):",
+            "[Auth Callback] Error in side effects (PostHog):",
             err,
           );
           // Continue with redirect even if side effects fail

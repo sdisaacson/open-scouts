@@ -128,7 +128,6 @@ The PostHog key must also be available to Supabase edge functions for server-sid
 | Event | When |
 |-------|------|
 | `test_email_sent` | User sends test notification |
-| `firecrawl_key_regenerated` | User regenerates API key |
 | `location_updated` | User changes default location |
 
 ## Adding New Events

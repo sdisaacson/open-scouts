@@ -2,13 +2,7 @@
 
 import type { Scout, ScoutResponse } from "./types.ts";
 import { getMaxAge, isBlacklistedDomain } from "./constants.ts";
-import {
-  createStep,
-  updateStep,
-  getFirecrawlKeyForUser,
-  logFirecrawlUsage,
-  markFirecrawlKeyInvalid,
-} from "./helpers.ts";
+import { createStep, updateStep, logFirecrawlUsage } from "./helpers.ts";
 import { executeSearchTool, executeScrapeTool } from "./tools.ts";
 import { sendScoutSuccessEmail } from "./email.ts";
 import {
@@ -46,7 +40,10 @@ function cosineSimilarity(vecA: number[], vecB: number[]): number {
 }
 
 // Execute the scout agent using OpenAI with tools
-export async function executeScoutAgent(scout: Scout, supabase: any): Promise<void> {
+export async function executeScoutAgent(
+  scout: Scout,
+  supabase: any,
+): Promise<void> {
   console.log(`Executing scout: ${scout.title} (${scout.id})`);
 
   // Create execution record
@@ -75,7 +72,7 @@ export async function executeScoutAgent(scout: Scout, supabase: any): Promise<vo
     scout.id,
     executionId,
     scout.title,
-    "automatic" // Could be passed as param if manual trigger detection is needed
+    "automatic", // Could be passed as param if manual trigger detection is needed
   );
 
   try {
@@ -85,17 +82,14 @@ export async function executeScoutAgent(scout: Scout, supabase: any): Promise<vo
       throw new Error("OPENAI_API_KEY not configured");
     }
 
-    // Get the user's Firecrawl API key - no fallback, each user must have their own key
-    const firecrawlKeyResult = await getFirecrawlKeyForUser(
-      supabase,
-      scout.user_id
-    );
+    // Use the shared Firecrawl API key from edge function secrets
+    const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
 
-    if (!firecrawlKeyResult.apiKey) {
-      throw new Error("User does not have a valid Firecrawl API key configured. Please add your API key in Settings.");
+    if (!FIRECRAWL_API_KEY) {
+      throw new Error(
+        "FIRECRAWL_API_KEY is not configured in edge function secrets.",
+      );
     }
-
-    const FIRECRAWL_API_KEY = firecrawlKeyResult.apiKey;
 
     // Track total API calls for usage logging
     let firecrawlApiCallsCount = 0;
@@ -127,11 +121,15 @@ export async function executeScoutAgent(scout: Scout, supabase: any): Promise<vo
           const embedding = exec.summary_embedding;
           const isValid = Array.isArray(embedding) && embedding.length === 1536;
           if (!isValid && embedding) {
-            console.log(`⚠️ Filtering out execution from ${exec.completed_at} - invalid embedding length: ${Array.isArray(embedding) ? embedding.length : 'not an array'}`);
+            console.log(
+              `⚠️ Filtering out execution from ${exec.completed_at} - invalid embedding length: ${Array.isArray(embedding) ? embedding.length : "not an array"}`,
+            );
           }
           return isValid;
         });
-        console.log(`Found ${similarExecutions.length} recent executions with valid embeddings (filtered from ${recentExecutions.length} total)`);
+        console.log(
+          `Found ${similarExecutions.length} recent executions with valid embeddings (filtered from ${recentExecutions.length} total)`,
+        );
       }
     } catch (error: any) {
       console.error("Error querying similar executions:", error.message);
@@ -144,8 +142,16 @@ export async function executeScoutAgent(scout: Scout, supabase: any): Promise<vo
       const recentFindings = similarExecutions
         .slice(0, 5) // Only include the 5 most recent
         .map((exec, index) => {
-          const daysAgo = Math.floor((Date.now() - new Date(exec.completed_at).getTime()) / (1000 * 60 * 60 * 24));
-          const timeDesc = daysAgo === 0 ? "today" : daysAgo === 1 ? "yesterday" : `${daysAgo} days ago`;
+          const daysAgo = Math.floor(
+            (Date.now() - new Date(exec.completed_at).getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
+          const timeDesc =
+            daysAgo === 0
+              ? "today"
+              : daysAgo === 1
+                ? "yesterday"
+                : `${daysAgo} days ago`;
           return `${index + 1}. ${exec.summary_text} (found ${timeDesc})`;
         })
         .join("\n");
@@ -166,7 +172,7 @@ Only report NEW information that differs meaningfully from these recent findings
     }
 
     const systemPrompt = `# SCOUT AGENT - Automated Monitor
-Current date: ${new Date().toISOString().split('T')[0]}
+Current date: ${new Date().toISOString().split("T")[0]}
 
 ## Your Mission
 You are executing an automated scout for: "${scout.title}"
@@ -244,8 +250,18 @@ You have access to searchWeb and scrapeWebsite tools. Use them intelligently to 
 `;
 
     // Determine the appropriate time filter
-    const timeFilter = scout.frequency === 'daily' ? 'qdr:d' : scout.frequency === 'every_3_days' ? 'qdr:w' : 'qdr:w';
-    const timeDescription = scout.frequency === 'daily' ? 'day' : scout.frequency === 'every_3_days' ? '3 days' : 'week';
+    const timeFilter =
+      scout.frequency === "daily"
+        ? "qdr:d"
+        : scout.frequency === "every_3_days"
+          ? "qdr:w"
+          : "qdr:w";
+    const timeDescription =
+      scout.frequency === "daily"
+        ? "day"
+        : scout.frequency === "every_3_days"
+          ? "3 days"
+          : "week";
 
     const userMessage = `Execute the scout using this STRUCTURED WORKFLOW:
 
@@ -274,7 +290,10 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
     await createStep(supabase, executionId, stepNumber, {
       step_type: "tool_call",
       description: "Initializing agent with OpenAI",
-      input_data: { model: "gpt-5.1-2025-11-13", system: systemPrompt.substring(0, 200) + "..." },
+      input_data: {
+        model: "gpt-5.1-2025-11-13",
+        system: systemPrompt.substring(0, 200) + "...",
+      },
       status: "running",
     });
 
@@ -305,51 +324,64 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-5.1-2025-11-13",
+            messages: conversationMessages,
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "searchWeb",
+                  description:
+                    "Search the web using Firecrawl. Returns results with snippets, published dates, and favicons.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      query: { type: "string", description: "Search query" },
+                      limit: {
+                        type: "number",
+                        description: "Number of results (1-10)",
+                        default: 5,
+                      },
+                      tbs: {
+                        type: "string",
+                        description:
+                          "Time filter: qdr:h (hour), qdr:d (day), qdr:w (week), qdr:m (month)",
+                      },
+                    },
+                    required: ["query"],
+                  },
+                },
+              },
+              {
+                type: "function",
+                function: {
+                  name: "scrapeWebsite",
+                  description:
+                    "Scrape a URL to get full page content and screenshots. ALWAYS use this to verify search results - scraping is essential for accurate information gathering. Returns markdown content and a screenshot URL.",
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      url: { type: "string", description: "URL to scrape" },
+                    },
+                    required: ["url"],
+                  },
+                },
+              },
+            ],
+            tool_choice: "auto",
+          }),
+          signal: controller.signal,
         },
-        body: JSON.stringify({
-          model: "gpt-5.1-2025-11-13",
-          messages: conversationMessages,
-          tools: [
-            {
-              type: "function",
-              function: {
-                name: "searchWeb",
-                description: "Search the web using Firecrawl. Returns results with snippets, published dates, and favicons.",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    query: { type: "string", description: "Search query" },
-                    limit: { type: "number", description: "Number of results (1-10)", default: 5 },
-                    tbs: { type: "string", description: "Time filter: qdr:h (hour), qdr:d (day), qdr:w (week), qdr:m (month)" },
-                  },
-                  required: ["query"],
-                },
-              },
-            },
-            {
-              type: "function",
-              function: {
-                name: "scrapeWebsite",
-                description: "Scrape a URL to get full page content and screenshots. ALWAYS use this to verify search results - scraping is essential for accurate information gathering. Returns markdown content and a screenshot URL.",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    url: { type: "string", description: "URL to scrape" },
-                  },
-                  required: ["url"],
-                },
-              },
-            },
-          ],
-          tool_choice: "auto",
-        }),
-        signal: controller.signal,
-      });
+      );
 
       clearTimeout(timeoutId);
 
@@ -365,7 +397,10 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
       conversationMessages.push(assistantMessage);
 
       // Check if we need to execute tool calls
-      if (assistantMessage.tool_calls && assistantMessage.tool_calls.length > 0) {
+      if (
+        assistantMessage.tool_calls &&
+        assistantMessage.tool_calls.length > 0
+      ) {
         for (const toolCall of assistantMessage.tool_calls) {
           stepNumber++;
           const toolName = toolCall.function.name;
@@ -386,32 +421,44 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
           try {
             if (toolName === "searchWeb") {
               // Only pass location if it exists and is not "any"
-              const locationToUse = scout.location?.city && scout.location.city !== "any"
-                ? scout.location.city
-                : undefined;
-              toolResult = await executeSearchTool(toolArgs, FIRECRAWL_API_KEY, locationToUse, maxAgeMs);
+              const locationToUse =
+                scout.location?.city && scout.location.city !== "any"
+                  ? scout.location.city
+                  : undefined;
+              toolResult = await executeSearchTool(
+                toolArgs,
+                FIRECRAWL_API_KEY,
+                locationToUse,
+                maxAgeMs,
+              );
               firecrawlApiCallsCount++;
             } else if (toolName === "scrapeWebsite") {
-              toolResult = await executeScrapeTool(toolArgs, FIRECRAWL_API_KEY, maxAgeMs);
+              toolResult = await executeScrapeTool(
+                toolArgs,
+                FIRECRAWL_API_KEY,
+                maxAgeMs,
+              );
               firecrawlApiCallsCount++;
             }
 
             // Check if tool returned an error
-            hasError = toolResult && typeof toolResult === 'object' && 'error' in toolResult;
+            hasError =
+              toolResult &&
+              typeof toolResult === "object" &&
+              "error" in toolResult;
 
-            // Check for 401 Unauthorized errors - indicates invalid API key
-            if (hasError && toolResult?.error?.includes('401')) {
-              console.error(`[Firecrawl] 401 error detected - marking user key as invalid`);
-              await markFirecrawlKeyInvalid(
-                supabase,
-                scout.user_id,
-                `Firecrawl returned 401: ${toolResult.error}`
+            // Check for 401 Unauthorized errors - indicates the shared key is invalid
+            if (hasError && toolResult?.error?.includes("401")) {
+              console.error(
+                `[Firecrawl] Shared key returned 401. Check FIRECRAWL_API_KEY edge function secret.`,
               );
             }
 
-            // Check for 402 Payment Required errors - disable all user scouts and throw
-            if (hasError && toolResult?.error?.includes('402')) {
-              console.error(`[Firecrawl] 402 Payment Required - disabling all scouts for user ${scout.user_id}`);
+            // Check for 402 Payment Required errors - the shared account is out of credits
+            if (hasError && toolResult?.error?.includes("402")) {
+              console.error(
+                `[Firecrawl] 402 Payment Required - disabling all scouts for user ${scout.user_id}`,
+              );
 
               // Disable ALL scouts for this user
               await supabase
@@ -419,24 +466,24 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
                 .update({ is_active: false })
                 .eq("user_id", scout.user_id);
 
-              // Mark key as invalid
-              await markFirecrawlKeyInvalid(
-                supabase,
-                scout.user_id,
-                `Firecrawl returned 402: Insufficient credits. Please add your own API key in Settings.`
+              // Throw a user-facing error that does not mention adding a personal key
+              throw new Error(
+                "Firecrawl service is temporarily unavailable. Please try again later or contact support.",
               );
-
-              // Throw a specific error that will be caught and shown to the user
-              throw new Error(`Firecrawl API credits exhausted. All your scouts have been paused. Please add your own Firecrawl API key in Settings → Firecrawl Integration → Custom API Key. Get your key at https://www.firecrawl.dev/app/api-keys`);
             }
           } catch (error: any) {
             console.error(`Tool execution error for ${toolName}:`, error);
-            toolResult = { error: error.message, query: toolArgs.query || toolArgs.url };
+            toolResult = {
+              error: error.message,
+              query: toolArgs.query || toolArgs.url,
+            };
             hasError = true;
           }
 
           // Update step with result
-          console.log(`[${scout.title}] Step ${stepNumber} (${toolName}) ${hasError ? 'failed' : 'completed'}`);
+          console.log(
+            `[${scout.title}] Step ${stepNumber} (${toolName}) ${hasError ? "failed" : "completed"}`,
+          );
           await updateStep(supabase, executionId, stepNumber, {
             status: hasError ? "failed" : "completed",
             output_data: toolResult,
@@ -446,19 +493,26 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
           // Track consecutive errors (but don't count errors for blacklisted domains)
           if (hasError) {
             // Check if this is a blacklisted domain error (shouldn't happen often after filtering)
-            const isBlacklistedError = toolName === "scrapeWebsite" &&
-                                       toolArgs.url &&
-                                       isBlacklistedDomain(toolArgs.url);
+            const isBlacklistedError =
+              toolName === "scrapeWebsite" &&
+              toolArgs.url &&
+              isBlacklistedDomain(toolArgs.url);
 
             if (!isBlacklistedError) {
               consecutiveErrors++;
-              console.error(`[${scout.title}] Tool error (${consecutiveErrors}/${maxConsecutiveErrors}): ${(toolResult as any).error}`);
+              console.error(
+                `[${scout.title}] Tool error (${consecutiveErrors}/${maxConsecutiveErrors}): ${(toolResult as any).error}`,
+              );
 
               if (consecutiveErrors >= maxConsecutiveErrors) {
-                throw new Error(`Too many consecutive tool errors (${maxConsecutiveErrors}). Last error: ${(toolResult as any).error}`);
+                throw new Error(
+                  `Too many consecutive tool errors (${maxConsecutiveErrors}). Last error: ${(toolResult as any).error}`,
+                );
               }
             } else {
-              console.warn(`[${scout.title}] Skipped scraping blacklisted domain: ${toolArgs.url}`);
+              console.warn(
+                `[${scout.title}] Skipped scraping blacklisted domain: ${toolArgs.url}`,
+              );
             }
           } else {
             consecutiveErrors = 0; // Reset on success
@@ -471,7 +525,11 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
             content: JSON.stringify(toolResult),
           } as any);
 
-          toolCalls.push({ tool: toolName, args: toolArgs, result: toolResult });
+          toolCalls.push({
+            tool: toolName,
+            args: toolArgs,
+            result: toolResult,
+          });
         }
       } else {
         // No more tool calls, agent is done
@@ -486,14 +544,16 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
           let jsonString = finalContent.trim();
 
           // Remove markdown code fences if present
-          if (jsonString.includes('```json')) {
-            jsonString = jsonString.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-          } else if (jsonString.includes('```')) {
-            jsonString = jsonString.replace(/```\s*/g, '');
+          if (jsonString.includes("```json")) {
+            jsonString = jsonString
+              .replace(/```json\s*/g, "")
+              .replace(/```\s*/g, "");
+          } else if (jsonString.includes("```")) {
+            jsonString = jsonString.replace(/```\s*/g, "");
           }
 
           // Find the last closing brace to handle any trailing text
-          const lastBrace = jsonString.lastIndexOf('}');
+          const lastBrace = jsonString.lastIndexOf("}");
           if (lastBrace !== -1) {
             jsonString = jsonString.substring(0, lastBrace + 1);
           }
@@ -505,7 +565,8 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
           scoutResponse = {
             taskCompleted: false,
             taskStatus: "insufficient_data",
-            response: finalContent || "Agent completed without structured output",
+            response:
+              finalContent || "Agent completed without structured output",
           };
         }
 
@@ -528,29 +589,36 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
 
             // Generate a concise one-sentence summary using OpenAI
             const summaryController = new AbortController();
-            const summaryTimeoutId = setTimeout(() => summaryController.abort(), 60000);
+            const summaryTimeoutId = setTimeout(
+              () => summaryController.abort(),
+              60000,
+            );
 
-            const summaryResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${OPENAI_API_KEY}`,
-                "Content-Type": "application/json",
+            const summaryResponse = await fetch(
+              "https://api.openai.com/v1/chat/completions",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${OPENAI_API_KEY}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  model: "gpt-5.1-2025-11-13",
+                  messages: [
+                    {
+                      role: "system",
+                      content:
+                        "You are a concise summarizer. Generate a single sentence (max 150 characters) that captures the key finding from the scout execution. Focus on what was discovered, not the process. Be specific and include key details like names, locations, or dates if present.",
+                    },
+                    {
+                      role: "user",
+                      content: `Scout goal: ${scout.goal}\n\nFindings: ${scoutResponse.response}\n\nGenerate a one-sentence summary (max 150 characters) of the key discovery.`,
+                    },
+                  ],
+                }),
+                signal: summaryController.signal,
               },
-              body: JSON.stringify({
-                model: "gpt-5.1-2025-11-13",
-                messages: [
-                  {
-                    role: "system",
-                    content: "You are a concise summarizer. Generate a single sentence (max 150 characters) that captures the key finding from the scout execution. Focus on what was discovered, not the process. Be specific and include key details like names, locations, or dates if present."
-                  },
-                  {
-                    role: "user",
-                    content: `Scout goal: ${scout.goal}\n\nFindings: ${scoutResponse.response}\n\nGenerate a one-sentence summary (max 150 characters) of the key discovery.`
-                  }
-                ],
-              }),
-              signal: summaryController.signal,
-            });
+            );
 
             clearTimeout(summaryTimeoutId);
 
@@ -562,32 +630,46 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
               // Generate embedding for the summary
               console.log(`Generating embedding for summary...`);
               const embeddingController = new AbortController();
-              const embeddingTimeoutId = setTimeout(() => embeddingController.abort(), 60000);
+              const embeddingTimeoutId = setTimeout(
+                () => embeddingController.abort(),
+                60000,
+              );
 
-              const embeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${OPENAI_API_KEY}`,
-                  "Content-Type": "application/json",
+              const embeddingResponse = await fetch(
+                "https://api.openai.com/v1/embeddings",
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${OPENAI_API_KEY}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    model: "text-embedding-3-small",
+                    input: summaryText,
+                  }),
+                  signal: embeddingController.signal,
                 },
-                body: JSON.stringify({
-                  model: "text-embedding-3-small",
-                  input: summaryText,
-                }),
-                signal: embeddingController.signal,
-              });
+              );
 
               clearTimeout(embeddingTimeoutId);
 
               if (embeddingResponse.ok) {
                 const embeddingData = await embeddingResponse.json();
                 summaryEmbedding = embeddingData.data[0].embedding;
-                console.log(`Embedding generated successfully (${summaryEmbedding?.length || 0} dimensions)`);
+                console.log(
+                  `Embedding generated successfully (${summaryEmbedding?.length || 0} dimensions)`,
+                );
               } else {
-                console.error("Failed to generate embedding:", await embeddingResponse.text());
+                console.error(
+                  "Failed to generate embedding:",
+                  await embeddingResponse.text(),
+                );
               }
             } else {
-              console.error("Failed to generate summary:", await summaryResponse.text());
+              console.error(
+                "Failed to generate summary:",
+                await summaryResponse.text(),
+              );
             }
           } catch (error: any) {
             console.error("Error generating summary/embedding:", error.message);
@@ -598,9 +680,15 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
         let isDuplicate = false;
         let similarityThreshold = 0.85; // Similarity threshold (0-1, where 1 is identical)
 
-        if (scoutResponse.taskCompleted && summaryEmbedding && similarExecutions.length > 0) {
+        if (
+          scoutResponse.taskCompleted &&
+          summaryEmbedding &&
+          similarExecutions.length > 0
+        ) {
           const currentEmbedding = summaryEmbedding as number[];
-          console.log(`\n🔍 DUPLICATE DETECTION: Checking cosine similarity against ${similarExecutions.length} previous executions...`);
+          console.log(
+            `\n🔍 DUPLICATE DETECTION: Checking cosine similarity against ${similarExecutions.length} previous executions...`,
+          );
           console.log(`Current summary: "${summaryText}"`);
           console.log(`Current embedding length: ${currentEmbedding.length}`);
           console.log(`Similarity threshold: ${similarityThreshold}`);
@@ -609,28 +697,54 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
             if (prevExecution.summary_embedding) {
               try {
                 // Check if vectors have the same length
-                const prevEmbedding = prevExecution.summary_embedding as number[];
+                const prevEmbedding =
+                  prevExecution.summary_embedding as number[];
 
                 // Additional validation - should already be filtered but double-check
-                if (!Array.isArray(prevEmbedding) || prevEmbedding.length !== 1536) {
-                  console.log(`  ⚠️  Skipping comparison - invalid previous embedding (length: ${Array.isArray(prevEmbedding) ? prevEmbedding.length : 'not an array'}) for execution from ${prevExecution.completed_at}`);
+                if (
+                  !Array.isArray(prevEmbedding) ||
+                  prevEmbedding.length !== 1536
+                ) {
+                  console.log(
+                    `  ⚠️  Skipping comparison - invalid previous embedding (length: ${Array.isArray(prevEmbedding) ? prevEmbedding.length : "not an array"}) for execution from ${prevExecution.completed_at}`,
+                  );
                   continue;
                 }
 
                 if (prevEmbedding.length !== currentEmbedding.length) {
-                  console.log(`  ⚠️  Skipping comparison - vector length mismatch (current: ${currentEmbedding.length}, previous: ${prevEmbedding.length}) for execution from ${prevExecution.completed_at}`);
+                  console.log(
+                    `  ⚠️  Skipping comparison - vector length mismatch (current: ${currentEmbedding.length}, previous: ${prevEmbedding.length}) for execution from ${prevExecution.completed_at}`,
+                  );
                   continue;
                 }
 
-                const similarity = cosineSimilarity(currentEmbedding, prevEmbedding);
-                const daysAgo = Math.floor((Date.now() - new Date(prevExecution.completed_at).getTime()) / (1000 * 60 * 60 * 24));
-                const timeDesc = daysAgo === 0 ? "today" : daysAgo === 1 ? "yesterday" : `${daysAgo} days ago`;
+                const similarity = cosineSimilarity(
+                  currentEmbedding,
+                  prevEmbedding,
+                );
+                const daysAgo = Math.floor(
+                  (Date.now() -
+                    new Date(prevExecution.completed_at).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                );
+                const timeDesc =
+                  daysAgo === 0
+                    ? "today"
+                    : daysAgo === 1
+                      ? "yesterday"
+                      : `${daysAgo} days ago`;
 
-                console.log(`  📊 Similarity: ${similarity.toFixed(4)} | Previous: "${prevExecution.summary_text}" (${timeDesc})`);
+                console.log(
+                  `  📊 Similarity: ${similarity.toFixed(4)} | Previous: "${prevExecution.summary_text}" (${timeDesc})`,
+                );
 
                 if (similarity >= similarityThreshold) {
-                  console.log(`  ⚠️  DUPLICATE DETECTED! Similarity ${similarity.toFixed(4)} >= ${similarityThreshold}`);
-                  console.log(`  Previous execution: "${prevExecution.summary_text}"`);
+                  console.log(
+                    `  ⚠️  DUPLICATE DETECTED! Similarity ${similarity.toFixed(4)} >= ${similarityThreshold}`,
+                  );
+                  console.log(
+                    `  Previous execution: "${prevExecution.summary_text}"`,
+                  );
                   console.log(`  Completed at: ${prevExecution.completed_at}`);
                   isDuplicate = true;
 
@@ -640,7 +754,7 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
                     scout.id,
                     executionId,
                     scout.title,
-                    similarity
+                    similarity,
                   );
 
                   // Update the response to indicate this is a duplicate
@@ -648,18 +762,26 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
                   break;
                 }
               } catch (error: any) {
-                console.error(`  ❌ Error calculating similarity: ${error.message}`);
+                console.error(
+                  `  ❌ Error calculating similarity: ${error.message}`,
+                );
               }
             }
           }
 
           if (!isDuplicate) {
-            console.log(`✅ No duplicates found - this is a new unique finding\n`);
+            console.log(
+              `✅ No duplicates found - this is a new unique finding\n`,
+            );
           } else {
-            console.log(`🚫 Duplicate detected - will skip email notification\n`);
+            console.log(
+              `🚫 Duplicate detected - will skip email notification\n`,
+            );
           }
         } else if (scoutResponse.taskCompleted && summaryEmbedding) {
-          console.log(`ℹ️  No previous executions to compare against - this is the first successful result\n`);
+          console.log(
+            `ℹ️  No previous executions to compare against - this is the first successful result\n`,
+          );
         }
 
         // Mark execution as completed - store as JSONB object with summary and embedding
@@ -679,13 +801,31 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
           console.log(`Scout found results, sending email notification...`);
           try {
             await sendScoutSuccessEmail(scout, scoutResponse, supabase);
-            trackEmailNotificationSent(scout.user_id, scout.id, executionId, scout.title, true);
+            trackEmailNotificationSent(
+              scout.user_id,
+              scout.id,
+              executionId,
+              scout.title,
+              true,
+            );
           } catch (emailError: any) {
-            console.error(`Failed to send email notification:`, emailError.message);
-            trackEmailNotificationSent(scout.user_id, scout.id, executionId, scout.title, false, emailError.message);
+            console.error(
+              `Failed to send email notification:`,
+              emailError.message,
+            );
+            trackEmailNotificationSent(
+              scout.user_id,
+              scout.id,
+              executionId,
+              scout.title,
+              false,
+              emailError.message,
+            );
           }
         } else if (isDuplicate) {
-          console.log(`📧 Skipping email notification - result is too similar to a previous finding`);
+          console.log(
+            `📧 Skipping email notification - result is too similar to a previous finding`,
+          );
         }
 
         // Track execution completed
@@ -700,20 +840,23 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
             results_found: scoutResponse.taskCompleted,
             is_duplicate: isDuplicate,
             api_calls_count: firecrawlApiCallsCount,
-          }
+          },
         );
       }
     }
 
     // Check if we hit max loops without finishing
     if (loopCount >= maxLoops) {
-      console.warn(`[${scout.title}] Hit max loops (${maxLoops}), forcing completion`);
+      console.warn(
+        `[${scout.title}] Hit max loops (${maxLoops}), forcing completion`,
+      );
 
       // Create a summary indicating incomplete execution
       const incompleteSummary = {
         taskCompleted: false,
         taskStatus: "partial" as const,
-        response: "The scout execution reached its maximum iteration limit. The AI agent may have encountered repeated errors or gotten stuck in a loop. Please check the execution steps for more details."
+        response:
+          "The scout execution reached its maximum iteration limit. The AI agent may have encountered repeated errors or gotten stuck in a loop. Please check the execution steps for more details.",
       };
 
       await supabase
@@ -731,7 +874,7 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
       .from("scouts")
       .update({
         last_run_at: new Date().toISOString(),
-        consecutive_failures: 0 // Reset on successful execution
+        consecutive_failures: 0, // Reset on successful execution
       })
       .eq("id", scout.id);
 
@@ -741,8 +884,6 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
         userId: scout.user_id,
         scoutId: scout.id,
         executionId,
-        usedFallback: firecrawlKeyResult.usedFallback,
-        fallbackReason: firecrawlKeyResult.fallbackReason,
         apiCallsCount: firecrawlApiCallsCount,
       });
     }
@@ -758,7 +899,7 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
       executionId,
       scout.title,
       error.message,
-      Date.now() - executionStartTime
+      Date.now() - executionStartTime,
     );
 
     // Mark current step as failed
@@ -789,12 +930,14 @@ REMINDER: Write your final response like a NEWS BRIEF. DO NOT mention your proce
       .update({
         last_run_at: new Date().toISOString(),
         consecutive_failures: newFailureCount,
-        ...(shouldDisable && { is_active: false })
+        ...(shouldDisable && { is_active: false }),
       })
       .eq("id", scout.id);
 
     if (shouldDisable) {
-      console.warn(`[${scout.title}] Scout disabled after ${newFailureCount} consecutive failures`);
+      console.warn(
+        `[${scout.title}] Scout disabled after ${newFailureCount} consecutive failures`,
+      );
     } else {
       console.warn(`[${scout.title}] Consecutive failure ${newFailureCount}/3`);
     }

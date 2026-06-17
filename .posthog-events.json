@@ -40,11 +40,6 @@
     "file_path": "app/scouts/page.tsx"
   },
   {
-    "event_name": "firecrawl_key_regenerated",
-    "description": "User regenerates their Firecrawl API key from settings",
-    "file_path": "app/settings/page.tsx"
-  },
-  {
     "event_name": "test_email_sent",
     "description": "User sends a test notification email from settings",
     "file_path": "app/settings/page.tsx"

@@ -18,14 +18,6 @@ export interface Scout {
   consecutive_failures: number;
 }
 
-export type FirecrawlKeyStatus = "pending" | "active" | "fallback" | "failed" | "invalid";
-
-export interface FirecrawlKeyResult {
-  apiKey: string | null;
-  usedFallback: boolean;
-  fallbackReason?: string;
-}
-
 export interface ScoutResponse {
   taskCompleted: boolean;
   taskStatus: "completed" | "partial" | "not_found" | "insufficient_data";

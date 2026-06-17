@@ -28,7 +28,7 @@ Open Scouts is an AI-powered monitoring platform that lets you create "scouts" -
 - bun (default), npm, or pnpm
 - Supabase account ([supabase.com](https://supabase.com))
 - OpenAI API key ([platform.openai.com](https://platform.openai.com))
-- Firecrawl API key ([firecrawl.dev](https://firecrawl.dev))
+- Shared Firecrawl API key ([firecrawl.dev](https://firecrawl.dev))
 - Resend API key ([resend.com](https://resend.com)) - for email notifications
 - Google Cloud Console account (for Google OAuth - optional)
 
@@ -167,25 +167,7 @@ Email notifications are sent to your account email when scouts find results.
 
 Open Scouts uses [Firecrawl](https://firecrawl.dev) for web scraping and search.
 
-> **📌 Important: No Environment Variable Configuration Required**
->
-> **You do NOT need to configure a Firecrawl API key in your environment variables.** Each user can simply add their own custom Firecrawl API key directly in the **Settings** page within the app. This is the recommended approach for most users.
-
-#### Custom API Key (Recommended)
-
-The simplest way to use Open Scouts:
-
-1. Sign up at [firecrawl.dev](https://firecrawl.dev)
-2. Get your API key from the [dashboard](https://www.firecrawl.dev/app/api-keys)
-3. Go to **Settings** in the Open Scouts app
-4. Enter your Firecrawl API key in the **Firecrawl Integration** section
-5. Click **Save** - you're ready to go!
-
-Each user manages their own API key, and usage is tracked to their individual Firecrawl account.
-
-#### Server-Side API Key (Optional - For Self-Hosting)
-
-If you're self-hosting and want to provide a shared API key for all users:
+All users share a single Firecrawl API key configured by the instance admin:
 
 1. Sign up at [firecrawl.dev](https://firecrawl.dev)
 2. Get your API key from the [dashboard](https://www.firecrawl.dev/app/api-keys)
@@ -198,18 +180,7 @@ If you're self-hosting and want to provide a shared API key for all users:
    npx supabase secrets set FIRECRAWL_API_KEY=fc-your-key-here
    ```
 
-**Note:** Users who add their own custom API key in Settings will use their personal key instead of the server-side shared key.
-
-#### Partner Integration (Enterprise - Closed Beta)
-
-> **⚠️ The Partner Key feature is currently in closed beta and only available for enterprise customers.** This feature is not publicly available.
-
-**How Partner Integration Works (when available):**
-- When users sign up, a unique Firecrawl API key is automatically created for them
-- Each user's usage is tracked separately
-- Keys are stored securely in the `user_preferences` table
-- If a user's key fails, the system automatically falls back to the shared partner key
-- Users can view their connection status in **Settings → Firecrawl Integration**
+Users can view the shared key's connection status and remaining credits in **Settings → Firecrawl Integration**.
 
 ### 10. Run the Development Server
 
@@ -264,7 +235,7 @@ When scouts find results, you'll automatically receive email alerts at your acco
 - **AI Agent**: OpenAI GPT-4 with function calling (search & scrape tools)
 - **AI Summaries**: Auto-generated one-sentence summaries with vector embeddings for each successful execution
 - **Edge Function**: Deno-based serverless function that orchestrates agent execution
-- **Web Scraping**: Firecrawl API for search and content extraction (supports per-user API keys via partner integration)
+- **Web Scraping**: Firecrawl API for search and content extraction (all users share one API key)
 
 #### Scalable Dispatcher Architecture
 
@@ -292,7 +263,7 @@ pg_cron → dispatch_due_scouts() → finds due scouts → pg_net HTTP POST
 - **User Isolation**: Scouts, messages, and executions are all tied to authenticated users
 - **Secure Auth Flow**: OAuth tokens and sessions are managed by Supabase Auth
 - **Service Role**: Server-side operations (cron jobs, edge functions) use service role for privileged access
-- **API Key Storage**: Firecrawl API keys (when using partner integration) are stored server-side in `user_preferences` and never exposed to the client
+- **API Key Storage**: The shared Firecrawl API key is stored in edge function secrets and environment variables, never exposed to the client
 
 ## Build for Production
 
