@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "migrate": "tsx scripts/migrate.ts",
-    "setup:db": "node scripts/setup-db.mjs"
+    "setup:db": "node scripts/setup-db.mjs",
+    "with-env": "node scripts/run-with-env.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.64",
@@ -71,7 +72,7 @@
     "lucide-react": "^0.539.0",
     "motion": "^12.20.2",
     "nanoid": "^5.0.9",
-    "next": "15.2.8",
+    "next": "^16.2.9",
     "next-themes": "^0.3.0",
     "pg": "^8.16.3",
     "pixi.js": "^8.9.0",

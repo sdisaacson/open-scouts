@@ -38,7 +38,7 @@ import { CoreFlame } from '@/components/shared/effects/flame';
 - **Usage**: Dramatic accent for CTAs or empty states
 - **Frame Speed**: 40ms (faster)
 - **Initial Delay**: 30 frames (1.2s)
-- **Color**: `text-[#FA5D19]` (heat orange)
+- **Color**: `text-[#323e88]` (deep blue)
 
 ```tsx
 import { AsciiExplosion } from '@/components/shared/effects/flame';

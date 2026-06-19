@@ -34,7 +34,7 @@ Open Scouts is an AI-powered monitoring platform that lets you create "scouts" -
 
 ### 1. Clone and Install
 
-```bash
+```bashOPENAI_API_KEYOPENAI_API_KEY
 git clone https://github.com/firecrawl/open-scouts
 cd open-scouts
 bun install  # or: npm install / pnpm install
@@ -79,15 +79,15 @@ bunx supabase link --project-ref <your-project-ref>  # Find ref in Supabase Dash
 ```
 
 Then run the setup script:
-
+OPENAI_API_KEYnpx supabase secrets set RESEND_FROM_EMAIL="Open Scouts <scouts@yourdomain.com>"
 ```bash
-bun run setup:db  # or: npm run setup:db / pnpm run setup:db
+bun run setup:dbnpx supabase secrets set RESEND_FROM_EMAIL="Open Scouts <scouts@yourdomain.com>"  # or: npm run setup:db / pnpm run setup:db
 ```
 
-This will:
+This will:bunx supabase functions deploy scout-cron
 - Create all required tables (`scouts`, `scout_executions`, `scout_execution_steps`, etc.)
 - Add user authentication support (user_id columns, Row Level Security)
-- Enable real-time subscriptions
+- Enable real-tinpx supabase secrets set RESEND_FROM_EMAIL="Open Scouts <scouts@yourdomain.com>"me subscriptions
 - Set up vector embeddings for AI-generated execution summaries
 - Configure the **scalable dispatcher architecture** (pg_cron + pg_net + vault)
 - Automatically store your Supabase URL and service role key in the vault
@@ -137,7 +137,7 @@ bunx supabase functions deploy send-test-email
 ```
 
 **Note:** Secrets (OPENAI_API_KEY, FIRECRAWL_API_KEY, RESEND_API_KEY) are automatically synced when you run `setup:db`. If you need to update them manually:
-
+re_adjxdgN2_8qZ1D53KnmHgAqFPvvZEMwhh
 ```bash
 bunx supabase secrets set OPENAI_API_KEY=sk-proj-...
 ```
@@ -186,7 +186,8 @@ Users can view the shared key's connection status and remaining credits in **Set
 
 ```bash
 bun run dev  # or: npm run dev / pnpm run dev
-```
+```bunx supabase functions deploy send-test-email
+bunx supabase functions deploy send-test-email
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
 
@@ -241,7 +242,7 @@ When scouts find results, you'll automatically receive email alerts at your acco
 
 Open Scouts uses a dispatcher pattern designed to scale to thousands of scouts:
 
-```
+```re_adjxdgN2_8qZ1D53KnmHgAqFPvvZEMwhh
 Every minute:
 pg_cron → dispatch_due_scouts() → finds due scouts → pg_net HTTP POST
                                                           ↓
@@ -249,7 +250,7 @@ pg_cron → dispatch_due_scouts() → finds due scouts → pg_net HTTP POST
                                     ↓                      ↓                      ↓
                               Edge Function          Edge Function          Edge Function
                               (scout A)              (scout B)              (scout C)
-                              [isolated]             [isolated]             [isolated]
+                              [isolated]             [re_adjxdgN2_8qZ1D53KnmHgAqFPvvZEMwhhisolated]             [isolated]
 ```
 
 - **Dispatcher (SQL)**: Runs every minute via pg_cron, queries for due scouts, and fires individual HTTP requests

@@ -13,21 +13,21 @@ export default function LockIcon() {
         width="24"
         height="20"
         rx="2"
-        fill="#FA5D19"
+        fill="#323e88"
         fillOpacity="0.1"
-        stroke="#FA5D19"
+        stroke="#323e88"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M16 20V14C16 10.6863 18.6863 8 22 8H26C29.3137 8 32 10.6863 32 14V20"
-        stroke="#FA5D19"
+        stroke="#323e88"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="24" cy="30" r="2" fill="#FA5D19" />
+      <circle cx="24" cy="30" r="2" fill="#323e88" />
     </svg>
   );
 }

@@ -189,7 +189,7 @@ Numeric Tailwind utility values map to **literal pixels**, not rem units.
 
 Colors come from `colors.json` and are exposed as CSS custom properties:
 
-- Brand: `heat-4` through `heat-100` (orange #fa5d19 with opacity variants)
+- Brand: `heat-4` through `heat-100` (deep blue #323e88 with opacity variants)
 - Accents: `accent-black`, `accent-white`, `accent-amethyst`, `accent-bluetron`, `accent-crimson`, `accent-forest`, `accent-honey`
 - Borders: `border-faint`, `border-muted`, `border-loud`
 - Backgrounds: `background-lighter`, `background-base`
@@ -249,7 +249,7 @@ Colors come from `colors.json` and are exposed as CSS custom properties:
 - **Protected routes**: `/scouts`, `/settings`, `/scout`, `/template` redirect unauthenticated users to `/login`.
 - **Auth routes**: `/login` redirects authenticated users to `/scouts`.
 - **OAuth flow**: `/login` → Google → `/auth/callback` → exchange code → redirect.
-- **Admin access**: Hardcoded to `@sideguide.dev` email domain. Enforced client-side and server-side (`/api/admin`).
+- **Admin access**: Hardcoded to `@sisaacson.io` email domain. Enforced client-side and server-side (`/api/admin`).
 - **API route pattern**: Use `createServerSupabaseClient()` + `getUser()`, then verify ownership with service-role client if needed.
 
 ## Edge Functions
@@ -354,7 +354,7 @@ If you add tests, place them alongside the code they test or in a `__tests__/` d
 - **RLS is mandatory** on all user-facing tables. Never disable RLS without adding proper policies.
 - **Service role key** (`SUPABASE_SERVICE_ROLE_KEY`) bypasses RLS. Only use it in server-side code and edge functions. Never expose it to the client.
 - **Firecrawl API key**: A single shared key is used for all users. It is stored in edge function secrets and server-side environment variables, never in `user_preferences` or exposed to the client.
-- **Admin access** is gated by email domain (`@sideguide.dev`).
+- **Admin access** is gated by email domain (`@sisaacson.io`).
 - **Security headers** are set globally in `next.config.js` (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy).
 
 ## Deployment

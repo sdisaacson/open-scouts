@@ -242,8 +242,8 @@ a:hover {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(251, 146, 60, 0.8), transparent);
-  box-shadow: 0 0 10px rgba(251, 146, 60, 0.5);
+  background: linear-gradient(90deg, transparent, rgba(50, 62, 136, 0.8), transparent);
+  box-shadow: 0 0 10px rgba(50, 62, 136, 0.5);
   animation: scanner 3s linear infinite;
 }
 

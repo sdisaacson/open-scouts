@@ -874,15 +874,15 @@ export function ScoutVisualDisplay({
                     0deg,
                     transparent,
                     transparent 40px,
-                    rgba(250, 93, 25, 0.03) 40px,
-                    rgba(250, 93, 25, 0.03) 41px
+                    rgba(50, 62, 136, 0.03) 40px,
+                    rgba(50, 62, 136, 0.03) 41px
                   ),
                   repeating-linear-gradient(
                     90deg,
                     transparent,
                     transparent 40px,
-                    rgba(250, 93, 25, 0.03) 40px,
-                    rgba(250, 93, 25, 0.03) 41px
+                    rgba(50, 62, 136, 0.03) 40px,
+                    rgba(50, 62, 136, 0.03) 41px
                   )`,
                   }}
                 />

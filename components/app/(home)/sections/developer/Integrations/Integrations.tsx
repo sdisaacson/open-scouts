@@ -46,7 +46,7 @@ export default function DeveloperIntegrations() {
       await Promise.all([
         animate(
           linkRef.current,
-          { color: "#FA5D19" },
+          { color: "#323e88" },
           { type: "spring", stiffness: 2000, damping: 40 },
         ),
         animate(
@@ -183,7 +183,7 @@ export default function DeveloperIntegrations() {
       <div className="absolute w-[calc(50%-0.5px)] lg:w-192 left-0 lg:left-81 h-full bg-background-base" />
 
       <div
-        className="grid grid-cols-2 gap-24 z-[11] absolute text-[10px]/[12px] whitespace-pre text-[#FA5D19] font-ascii cw-[1464px] h-[400px] pointer-events-none select-none fc-decoration"
+        className="grid grid-cols-2 gap-24 z-[11] absolute text-[10px]/[12px] whitespace-pre text-[#323e88] font-ascii cw-[1464px] h-[400px] pointer-events-none select-none fc-decoration"
         ref={explosionRef}
       >
         <div />

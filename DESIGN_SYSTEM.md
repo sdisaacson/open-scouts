@@ -52,7 +52,7 @@ The design system uses a comprehensive color palette defined in `colors.json` an
 
 #### Heat Colors
 The primary brand color with various opacity levels:
-- `heat-4` to `heat-100`: Orange/red brand color (#fa5d19) with opacity variants from 4% to 100%
+- `heat-4` to `heat-100`: Deep blue brand color (#323e88) with opacity variants from 4% to 100%
 
 #### Accent Colors
 Semantic colors for different UI states and contexts:
@@ -576,7 +576,7 @@ The brand assets are organized in the `public/brand/` directory with comprehensi
 - Maintain proper spacing and sizing ratios
 
 #### Color Usage
-- Primary brand color: `heat-100` (#fa5d19)
+- Primary brand color: `heat-100` (#323e88)
 - Use accent colors sparingly for highlights and CTAs
 - Maintain sufficient contrast ratios for accessibility
 

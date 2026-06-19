@@ -85,8 +85,8 @@ export function FlameButton({
       className={cn(
         "relative overflow-hidden rounded-8 transition-all  text-body-medium",
         "bg-white border border-heat-100 text-heat-100",
-        "hover:border-heat-200 hover:shadow-[0_0_20px_rgba(250,93,25,0.2)]",
-        "active:shadow-[0_0_30px_rgba(250,93,25,0.4)]",
+        "hover:border-heat-200 hover:shadow-[0_0_20px_rgba(50,62,136,0.2)]",
+        "active:shadow-[0_0_30px_rgba(50,62,136,0.4)]",
         className,
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -119,8 +119,8 @@ export function FlameButton({
                 transform: isPressed ? "scale(1.1)" : "scale(1)",
                 transition: "transform 0.1s ease",
                 textShadow: isPressed
-                  ? "0 0 3px rgba(250,93,25,0.8)"
-                  : "0 0 1px rgba(250,93,25,0.5)",
+                  ? "0 0 3px rgba(50,62,136,0.8)"
+                  : "0 0 1px rgba(50,62,136,0.5)",
               }}
             >
               {flamePatterns[flameIndex]}

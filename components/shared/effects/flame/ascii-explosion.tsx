@@ -57,7 +57,7 @@ function AsciiExplosionImpl(attrs: HTMLAttributes<HTMLDivElement>) {
       )}
     >
       <div
-        className="text-[#FA5D19] font-mono fc-decoration"
+        className="text-[#323e88] font-mono fc-decoration"
         ref={ref}
         style={{
           whiteSpace: "pre",
