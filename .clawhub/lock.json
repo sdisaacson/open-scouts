@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "tech-news-digest": {
+      "version": "3.16.0",
+      "installedAt": 1777607570988
+    },
+    "gog": {
+      "version": "1.0.0",
+      "installedAt": 1777610459010
+    }
+  }
+}
