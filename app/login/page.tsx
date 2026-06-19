@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/shared/button/Button";
 import { Mail, Lock, Loader2 } from "lucide-react";
-import posthog from "posthog-js";
 
 function LoginContent() {
   const router = useRouter();
@@ -61,17 +60,6 @@ function LoginContent() {
         });
         if (error) throw error;
 
-        // PostHog: Identify user and track login event
-        if (data?.user) {
-          posthog.identify(data.user.id, {
-            email: data.user.email,
-          });
-          posthog.capture("user_logged_in", {
-            method: "email",
-            email: data.user.email,
-          });
-        }
-
         // Redirect after login
         if (pendingQuery) {
           router.push(`/?pendingQuery=${encodeURIComponent(pendingQuery)}`);
@@ -88,17 +76,6 @@ function LoginContent() {
         });
         if (error) throw error;
 
-        // PostHog: Track signup event
-        if (data?.user) {
-          posthog.identify(data.user.id, {
-            email: data.user.email,
-          });
-          posthog.capture("user_signed_up", {
-            method: "email",
-            email: data.user.email,
-          });
-        }
-
         setMessage("Check your email for the confirmation link!");
       }
     } catch (err) {
@@ -111,9 +88,6 @@ function LoginContent() {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     setError("");
-
-    // PostHog: Track Google auth initiation
-    posthog.capture("google_auth_initiated");
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({

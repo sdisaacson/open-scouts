@@ -30,7 +30,6 @@ import {
   Settings,
 } from "lucide-react";
 import { Loader } from "@/components/ai-elements/loader";
-import posthog from "posthog-js";
 import { ScoutSettingsModal } from "@/components/scout-settings-modal";
 import { Button } from "@/components/ui/shadcn-default/button";
 import {
@@ -321,15 +320,6 @@ export default function ScoutPage() {
       return;
     }
 
-    // PostHog: Track scout activation
-    posthog.capture("scout_activated", {
-      scout_id: scoutId,
-      scout_title: currentScout.title,
-      frequency: currentScout.frequency,
-      has_location: !!currentScout.location,
-      search_queries_count: currentScout.search_queries?.length || 0,
-    });
-
     // Navigate to scout's execution page with autoRun parameter
     router.push(`/${scoutId}?autoRun=true`);
   };
@@ -433,16 +423,7 @@ export default function ScoutPage() {
     if (wasButtonDisabled.current && isComplete) {
       setShouldAnimateButton(true);
       wasButtonDisabled.current = false;
-
-      // PostHog: Track scout configuration completion
       hasTrackedCompletion.current = true;
-      posthog.capture("scout_configuration_completed", {
-        scout_id: scoutId,
-        scout_title: currentScout.title,
-        frequency: currentScout.frequency,
-        location_city: currentScout.location?.city,
-        search_queries_count: currentScout.search_queries?.length || 0,
-      });
     } else if (!isComplete) {
       wasButtonDisabled.current = true;
       setShouldAnimateButton(false);

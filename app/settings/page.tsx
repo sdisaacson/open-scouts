@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { Connector } from "@/components/shared/layout/curvy-rect";
 import LocationSelector, { UserLocation } from "@/components/location-selector";
-import posthog from "posthog-js";
 
 type FirecrawlStatus = "active" | "error";
 
@@ -183,11 +182,6 @@ export default function SettingsPage() {
         // Set cooldown after successful send (2 minutes)
         setTestEmailCooldown(120);
 
-        // PostHog: Track test email sent
-        posthog.capture("test_email_sent", {
-          status: "success",
-        });
-
         setTimeout(() => {
           setTestStatus("idle");
           setTestMessage("");
@@ -236,13 +230,6 @@ export default function SettingsPage() {
 
       setUserLocation(location);
       setLocationMessage("Location saved successfully!");
-
-      // PostHog: Track location update
-      posthog.capture("location_updated", {
-        city: location?.city,
-        country: location?.country,
-        has_coordinates: !!(location?.latitude && location?.longitude),
-      });
 
       setTimeout(() => setLocationMessage(""), 3000);
     } catch (error) {

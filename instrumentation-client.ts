@@ -1,9 +1,3 @@
-import posthog from "posthog-js";
-
-posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-  api_host: "https://us.i.posthog.com",
-  ui_host: "https://us.posthog.com",
-  defaults: "2025-05-24",
-  capture_exceptions: true,
-  debug: process.env.NODE_ENV === "development",
-});
+// PostHog client-side initialization — disabled
+// This file is kept as a no-op to avoid breaking imports.
+// To re-enable PostHog, restore the original init code here.

@@ -18,7 +18,6 @@ import {
 import { Connector } from "@/components/shared/layout/curvy-rect";
 import SymbolColored from "@/components/shared/icons/symbol-colored";
 import Tooltip from "@/components/ui/shadcn/tooltip";
-import posthog from "posthog-js";
 
 // Rate limit: 20 minutes between manual runs
 const MANUAL_RUN_COOLDOWN_MS = 20 * 60 * 1000;
@@ -89,12 +88,6 @@ export default function ExecutionsPage() {
         );
       }
 
-      // PostHog: Track scout execution triggered
-      posthog.capture("scout_execution_triggered", {
-        scout_id: scoutId,
-        trigger_source: "manual",
-      });
-
       // API call succeeded - keep triggering=true until execution appears in DB
       // Set timeout as fallback - if execution doesn't appear within 60 seconds, stop waiting
       triggerTimeoutRef.current = setTimeout(() => {
@@ -129,12 +122,6 @@ export default function ExecutionsPage() {
       alert("Failed to clear executions. Please try again.");
       return;
     }
-
-    // PostHog: Track execution history cleared
-    posthog.capture("execution_history_cleared", {
-      scout_id: scoutId,
-      executions_cleared: executionsCount,
-    });
 
     setClearDialogOpen(false);
     await loadExecutions();
@@ -184,12 +171,6 @@ export default function ExecutionsPage() {
           return;
         }
         setScout(data);
-        // PostHog: Track execution results page viewed
-        posthog.capture("scout_results_viewed", {
-          scout_id: data.id,
-          scout_title: data.title,
-          is_active: data.is_active,
-        });
       }
       setLoading(false);
     };
@@ -216,11 +197,6 @@ export default function ExecutionsPage() {
 
     setScout((prev) => (prev ? { ...prev, is_active: newActiveState } : prev));
     setTogglingActive(false);
-
-    posthog.capture(newActiveState ? "scout_enabled" : "scout_disabled", {
-      scout_id: scoutId,
-      scout_title: scout.title,
-    });
   };
 
   // Subscribe to execution changes
