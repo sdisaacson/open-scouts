@@ -66,7 +66,7 @@ components/             # React components (~748 files)
 ├── hooks/              # Component-level hooks
 └── providers/          # Theme provider
 
-contexts/               # React contexts
+contexts/               # React contextshttps://scout.sisaacson.io/
 ├── AuthContext.tsx     # Supabase auth session management
 └── CurrencyContext.tsx # Currency formatting context
 
@@ -85,7 +85,7 @@ styles/                 # Fire Design System styles
 ├── main.css
 ├── design-system/      # fonts, colors, typography, animations, utilities
 └── components/         # Component-level CSS (e.g., button.css)
-
+js
 styles-marketing/       # Marketing page styles (imported in root layout)
 
 supabase/
@@ -97,7 +97,7 @@ supabase/
 │   │   ├── email.ts    # Resend email notifications
 │   │   ├── helpers.ts  # DB helpers, Firecrawl key management
 │   │   ├── posthog.ts  # Edge function analytics
-│   │   ├── constants.ts# CORS, blacklists, helpers
+│   │   ├── constants.ts# CORS, blacklists, helpersjs
 │   │   ├── types.ts    # TypeScript types
 │   │   └── deno.json   # Deno imports
 │   └── send-test-email/# Test email edge function

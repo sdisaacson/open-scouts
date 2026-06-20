@@ -45,7 +45,7 @@ export function UnifiedChart({
   showXAxis = true,
   showYAxis = false,
   className,
-  color = "#ff4c00",
+  color = "#323e88",
   gradientId = "chartGradient",
   areas = ["value"],
   showLabels = true,

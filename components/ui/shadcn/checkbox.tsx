@@ -24,7 +24,37 @@ export default function Checkbox({
         )}
         style={{
           boxShadow: checked
-            ? "0px 2px 4px 0px rgba(255, 77, 0, 0.12), 0px 1px 1px 0px rgba(255, 77, 0, 0.12), 0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16), 0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.20)"
+            ? "0px 2px 4px 0px rgba(50, 62, 136, 0.12), 0px 1px 1px 0px rgba(50, 62, 136, 0.12), 0px 0.5px 0.5px 0px rgba(50, 62, 136, 0.16), 0px 0.25px 0.25px 0px rgba(50, 62, 136, 0.20)"
+            : "",
+        }}
+      >
+        <AnimatePresence>
+          {checked && (
+            <motion.svg
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="absolute cs-10"
+              exit={{ opacity: 0, scale: 0.9, y: 4 }}
+              fill="none"
+              height="10"
+              initial={{ opacity: 0, scale: 0.9, y: 4 }}
+              viewBox="0 0 10 10"
+              width="10"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2 5.98438L4.39062 8.375L8.375 2"
+                stroke="white"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.25"
+              />
+            </motion.svg>
+          )}
+        </AnimatePresence>
+      </div>
+    </button>
+  );
+}
             : "",
         }}
       >

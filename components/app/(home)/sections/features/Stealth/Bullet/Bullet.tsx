@@ -33,7 +33,7 @@ function FeaturesStealthBullet({
       key={data.rotate}
       style={{
         boxShadow:
-          "0px -6px 12px 0px rgba(255, 0, 0, 0.20) inset, 0px 3px 6px 0px rgba(255, 77, 0, 0.16), 0px 2px 4px 0px rgba(255, 77, 0, 0.12), 0px 1px 1px 0px rgba(255, 77, 0, 0.12), 0px 0.5px 0.5px 0px rgba(255, 77, 0, 0.16), 0px 0.25px 0.25px 0px rgba(255, 77, 0, 0.20), 0px 0px 0px 4px #F9F9F9, 0px 0px 0px 5px rgba(255, 76, 0, 0.10), 0px 0px 0px 10px #F9F9F9",
+          "0px -6px 12px 0px rgba(50, 62, 136, 0.20) inset, 0px 3px 6px 0px rgba(50, 62, 136, 0.16), 0px 2px 4px 0px rgba(50, 62, 136, 0.12), 0px 1px 1px 0px rgba(50, 62, 136, 0.12), 0px 0.5px 0.5px 0px rgba(50, 62, 136, 0.16), 0px 0.25px 0.25px 0px rgba(50, 62, 136, 0.20), 0px 0px 0px 4px #F9F9F9, 0px 0px 0px 5px rgba(50, 62, 136, 0.10), 0px 0px 0px 10px #F9F9F9",
         rotate: data.rotate,
       }}
       transition={transition}
