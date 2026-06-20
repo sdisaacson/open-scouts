@@ -1,4 +1,4 @@
-# Firecrawl Design System Documentation
+Discoveries # Firecrawl Design System Documentation
 
 This document provides a comprehensive overview of the new design system structure implemented in the Firecrawl web application. The design system is built on top of modern web technologies including Tailwind CSS, shadcn/ui, and custom component libraries.
 

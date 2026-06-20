@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Button from "@/components/ui/shadcn/button";
@@ -61,6 +61,7 @@ export default function AdminPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const hasCheckedAuth = useRef(false);
 
   const isAdmin = user?.email?.endsWith(ADMIN_EMAIL_DOMAIN);
 
@@ -88,13 +89,15 @@ export default function AdminPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!user || !isAdmin) {
-      router.push("/");
-      return;
+    if (!hasCheckedAuth.current) {
+      hasCheckedAuth.current = true;
+      if (!user || !isAdmin) {
+        router.push("/");
+        return;
+      }
+      fetchData();
     }
-
-    fetchData();
-  }, [user, authLoading, isAdmin, router]);
+  }, [authLoading, user, isAdmin, router]);
 
   // Pagination calculations
   const totalPages = data ? Math.ceil(data.users.length / ROWS_PER_PAGE) : 0;
@@ -370,7 +373,7 @@ export default function AdminPage() {
                           {getFirecrawlStatusBadge(u.firecrawlStatus)}
                         </td>
                         <td className="px-16 py-12 text-center">
-                          {u.firecrawlCredits !== null ? (
+                          {u.firecrawlCredits != null ? (
                             <span
                               className={`text-body-small font-medium ${
                                 u.firecrawlCredits === 0

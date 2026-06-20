@@ -18,6 +18,7 @@ import HomeHeroPixi from "@/components/app/(home)/sections/hero/Pixi/Pixi";
 import HowItWorks from "@/components/app/(home)/sections/scout/HowItWorks";
 import AlwaysSearching from "@/components/app/(home)/sections/scout/AlwaysSearching";
 import RecentDiscoveries from "@/components/app/(home)/sections/scout/RecentDiscoveries";
+import LiveActivityBadge from "@/components/app/(home)/sections/LiveActivityBadge";
 import { useAuth } from "@/contexts/AuthContext";
 
 // Memoize background effect components to prevent re-renders during typing
@@ -218,6 +219,8 @@ function HomeContent() {
                   they find what you&apos;re looking for
                 </p>
               </div>
+
+              <LiveActivityBadge />
 
               <div className="mb-8 py-10">
                 <ScoutInput
