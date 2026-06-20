@@ -410,7 +410,7 @@ const OverviewChartTooltip = ({
       <div
         className={cn(
           // base
-          "rounded-md border text-sm shadow-md",
+          "rounded-6 border text-sm shadow-md",
           // border color
           "border-gray-200 dark:border-gray-800",
           // background color
@@ -476,7 +476,7 @@ const ChartTooltip = ({
       <div
         className={cn(
           // base
-          "rounded-md border text-xs shadow-md",
+          "rounded-6 border text-xs shadow-md",
           // border color
           "border-gray-200 dark:border-gray-800",
           // background color

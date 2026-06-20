@@ -160,7 +160,7 @@ function Favicon({
     <img
       src={hasError && fallbackSrc ? fallbackSrc : src || fallbackSrc || ""}
       alt=""
-      className="w-full h-full rounded-sm object-contain"
+      className="w-full h-full rounded-4 object-contain"
       onError={() => setHasError(true)}
     />
   );

@@ -69,7 +69,7 @@ const DropdownMenuSubMenuContent = React.forwardRef<
       collisionPadding={collisionPadding}
       className={cn(
         // base
-        "relative z-50 overflow-hidden rounded-md border p-1 shadow-xl shadow-black/[2.5%]",
+        "relative z-50 overflow-hidden rounded-6 border p-1 shadow-xl shadow-black/[2.5%]",
         // widths
         "min-w-32",
         // heights
@@ -113,7 +113,7 @@ const DropdownMenuContent = React.forwardRef<
         ref={forwardedRef}
         className={cn(
           // base
-          "relative z-50 overflow-hidden rounded-md border p-1 shadow-xl shadow-black/[2.5%]",
+          "relative z-50 overflow-hidden rounded-6 border p-1 shadow-xl shadow-black/[2.5%]",
           // widths
           "min-w-[calc(var(--radix-dropdown-menu-trigger-width))]",
           // heights

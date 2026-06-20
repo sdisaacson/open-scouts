@@ -63,7 +63,7 @@ const TimeSegment = ({ segment, state }: TimeSegmentProps) => {
       ref={ref}
       className={cn(
         // base
-        "relative block w-full appearance-none rounded-md border px-2.5 py-1.5 text-left uppercase tabular-nums outline-none sm:text-sm",
+        "relative block w-full appearance-none rounded-6 border px-2.5 py-1.5 text-left uppercase tabular-nums outline-none sm:text-sm",
         // border color
         "border-gray-200 dark:border-gray-800",
         // text color
@@ -156,7 +156,7 @@ TimeInput.displayName = "TimeInput";
 const triggerStyles = tv({
   base: [
     // base
-    "peer flex w-full cursor-pointer appearance-none items-center gap-x-2 truncate rounded-md border px-3 h-9 text-xs  transition-colors outline-none",
+    "peer flex w-full cursor-pointer appearance-none items-center gap-x-2 truncate rounded-6 border px-3 h-9 text-xs  transition-colors outline-none",
     // background color
     "bg-white dark:bg-zinc-950",
     // text color
@@ -232,7 +232,7 @@ const CalendarPopover = React.forwardRef<
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cn(
           // base
-          "relative z-50 w-fit rounded-md border text-sm shadow-xl shadow-black/[2.5%]",
+          "relative z-50 w-fit rounded-6 border text-sm shadow-xl shadow-black/[2.5%]",
           // widths
           "min-w-[calc(var(--radix-select-trigger-width)-2px)] max-w-[95vw]",
           // border color

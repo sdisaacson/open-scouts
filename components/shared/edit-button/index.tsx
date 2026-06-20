@@ -23,7 +23,7 @@ const EditButton = (props: { href: string }) => {
             <PencilIcon className="text-zinc-500 size-3.5" />
           </Link>
         </TooltipTrigger>
-        <TooltipContent className="text-sm bg-white border border-zinc-200 rounded-md py-1 px-3 shadow-md">
+        <TooltipContent className="text-sm bg-white border border-zinc-200 rounded-6 py-1 px-3 shadow-md">
           Edit
         </TooltipContent>
       </Tooltip>

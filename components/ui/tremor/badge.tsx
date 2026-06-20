@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const badgeVariants = tv({
   base: cn(
-    "inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs  ring-1 ring-inset",
+    "inline-flex items-center gap-x-1 whitespace-nowrap rounded-6 px-2 py-1 text-xs  ring-1 ring-inset",
   ),
   variants: {
     variant: {

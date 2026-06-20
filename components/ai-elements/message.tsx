@@ -55,7 +55,7 @@ export const MessageContent = ({
   <div
     className={cn(
       "is-user:dark flex w-fit flex-col gap-2 overflow-hidden text-sm",
-      "group-[.is-user]:ml-auto group-[.is-user]:rounded-lg group-[.is-user]:bg-secondary group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-foreground",
+      "group-[.is-user]:ml-auto group-[.is-user]:rounded-8 group-[.is-user]:bg-secondary group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-foreground",
       "group-[.is-assistant]:text-foreground",
       className,
     )}
@@ -349,7 +349,7 @@ export function MessageAttachment({
   return (
     <div
       className={cn(
-        "group relative size-24 overflow-hidden rounded-lg",
+        "group relative size-24 overflow-hidden rounded-8",
         className,
       )}
       {...props}
@@ -384,7 +384,7 @@ export function MessageAttachment({
         <>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex size-full shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <div className="flex size-full shrink-0 items-center justify-center rounded-8 bg-muted text-muted-foreground">
                 <PaperclipIcon className="size-4" />
               </div>
             </TooltipTrigger>

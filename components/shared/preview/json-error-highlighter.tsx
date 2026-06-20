@@ -86,7 +86,7 @@ export function JsonErrorHighlighter({
       {error?.line && (
         <pre
           ref={preRef}
-          className="absolute inset-0 pointer-events-none select-none text-transparent whitespace-pre-wrap break-words focus-visible:outline-none shadow-none border-none rounded-md"
+          className="absolute inset-0 pointer-events-none select-none text-transparent whitespace-pre-wrap break-words focus-visible:outline-none shadow-none border-none rounded-6"
           aria-hidden="true"
           style={{
             fontFamily: "inherit",
@@ -158,7 +158,7 @@ export function JsonErrorHighlighter({
       <textarea
         ref={textareaRef}
         className={cn(
-          "absolute inset-0 resize-none bg-transparent border rounded-md text-black dark:text-white focus:overline-none focus:border-zinc-200 focus-visible:border-zinc-200 focus-visible:outline-none",
+          "absolute inset-0 resize-none bg-transparent border rounded-6 text-black dark:text-white focus:overline-none focus:border-zinc-200 focus-visible:border-zinc-200 focus-visible:outline-none",
           error?.message ? "!border-destructive" : "border-zinc-200",
         )}
         value={value}

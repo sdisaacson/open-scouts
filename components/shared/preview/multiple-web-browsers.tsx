@@ -52,7 +52,7 @@ export default function MultipleWebBrowsers({
         return (
           <motion.div
             key={browser.id}
-            className="absolute w-full rounded-xl overflow-hidden"
+            className="absolute w-full rounded-12 overflow-hidden"
             style={{
               transformOrigin: "top center",
             }}

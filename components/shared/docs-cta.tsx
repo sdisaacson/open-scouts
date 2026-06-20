@@ -12,7 +12,7 @@ export default function DocsCTAComponent() {
       <div className="flex items-center gap-4">
         <Link
           href="#"
-          className="mt-1 inline-flex items-center px-4 py-2 border border-transparent text-sm  rounded-md shadow-sm text-white bg-black hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
+          className="mt-1 inline-flex items-center px-4 py-2 border border-transparent text-sm  rounded-6 shadow-sm text-white bg-black hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
         >
           Documentation
         </Link>

@@ -28,7 +28,7 @@ export default function WebBrowser({
   return (
     <main className="relative w-full h-full flex items-center justify-center bg-transparent">
       <div
-        className={`w-full h-full max-w-[95vw] max-h-[85vh] min-w-full sm:min-w-[700px] rounded-2xl shadow-lg border border-gray-100 bg-white overflow-hidden flex flex-col transform-gpu ${
+        className={`w-full h-full max-w-[95vw] max-h-[85vh] min-w-full sm:min-w-[700px] rounded-16 shadow-lg border border-gray-100 bg-white overflow-hidden flex flex-col transform-gpu ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         } transition-all duration-300 ease-out`}
       >

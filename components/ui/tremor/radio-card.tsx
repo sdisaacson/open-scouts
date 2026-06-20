@@ -74,7 +74,7 @@ const RadioCardItem = React.forwardRef<
       ref={forwardedRef}
       className={cn(
         // base
-        "group relative w-full rounded-md border p-4 text-left shadow-sm transition-all focus:outline-none",
+        "group relative w-full rounded-6 border p-4 text-left shadow-sm transition-all focus:outline-none",
         // background color
         "bg-white dark:bg-gray-950",
         // border color
